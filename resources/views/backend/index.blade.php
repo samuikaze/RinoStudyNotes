@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="jumbotron">
-    <h1 class="display-4">公主連結 API 資料管理介面</h1>
+    <h1 class="display-4">超異域公主連結資料 API 管理介面</h1>
     <p class="lead">這邊可以編輯各 API 資料或權限管理，請從上方選單開始。</p>
     <hr class="my-4">
     <p>此專案也可以在 GitHub 上取得原始碼！</p>

@@ -34,4 +34,14 @@ class ViewController extends Controller
     {
         return $this->response->setView('backend.index')->view();
     }
+
+    /**
+     * 登入
+     * 
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function login()
+    {
+        return $this->response->setView('backend.login')->view();
+    }
 }
