@@ -22,4 +22,8 @@ Route::get('/api/all', 'FrontendController@apiList');
 // 管理介面
 Route::group(['prefix' => 'admin'], function () {
     Route::get('/', 'Backend\ViewController@index');
+
+    Route::get('/authentication', 'Backend\ViewController@login')->name('login');
+
+    Route::get('/logout', 'Backend\AuthenticationController@logout');
 });

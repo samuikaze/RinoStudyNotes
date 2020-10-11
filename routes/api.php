@@ -15,5 +15,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['prefix' => 'v1'], function () {
-    Route::get('/test', 'Api\CharacterController@test');
+    // 公共 API
+    Route::group(['as' => 'publicapi'], function () {
+        Route::get('/test', 'Api\CharacterController@test');
+    });
+    
+    // 後臺用路由
+    Route::group(['as' => 'webadmin.'], function () {
+        Route::post('/authentication/login', 'Backend\AuthenticationController@login')->name('login');
+        Route::get('/user', 'Backend\AuthenticationController@userInfo');
+    });
 });
