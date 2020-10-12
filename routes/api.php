@@ -22,7 +22,12 @@ Route::group(['prefix' => 'v1'], function () {
     
     // 後臺用路由
     Route::group(['as' => 'webadmin.'], function () {
-        Route::post('/authentication/login', 'Backend\AuthenticationController@login')->name('login');
         Route::get('/user', 'Backend\AuthenticationController@userInfo');
+    });
+
+    // 前端網頁用路由
+    Route::group(['as' => 'webfront.'], function () {
+        Route::get('/version', 'WebController@getVersionId');
+        Route::get('/version/all', 'WebController@getAllVersions');
     });
 });

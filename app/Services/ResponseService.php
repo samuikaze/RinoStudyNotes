@@ -5,6 +5,7 @@ namespace App\Services;
 class ResponseService
 {
     const OK = 200;
+    const FOUND = 302;
     const BAD_REQUEST = 400;
     const UNAUTHORIZED = 401;
     const FORBIDDEN = 403;
@@ -50,6 +51,13 @@ class ResponseService
     protected $view;
 
     /**
+     * 重新導向目的地，可為路由名稱或路由字串
+     * 
+     * @var string
+     */
+    protected $redirectTarget;
+
+    /**
      * 建構函式
      */
     public function __construct()
@@ -59,6 +67,7 @@ class ResponseService
         $this->errors = null;
         $this->headers = null;
         $this->view = null;
+        $this->redirectTarget = null;
     }
 
     /**
@@ -152,6 +161,19 @@ class ResponseService
     }
 
     /**
+     * 設定重新導向目的地
+     * 
+     * @param string $route
+     * @return $this
+     */
+    public function setRedirectTarget(string $route)
+    {
+        $this->redirectTarget = $route;
+
+        return $this;
+    }
+
+    /**
      * 返回 JSON 格式回應
      * 
      * @return \Illuminate\Http\JsonResponse JSON 回應
@@ -178,5 +200,29 @@ class ResponseService
         } else {
             return view($this->view, $this->data);
         }
+    }
+
+    /**
+     * 重新導向回應
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 重新導向
+     */
+    public function redirect()
+    {
+        $this->emptyValueProcessor();
+
+        return redirect($this->redirectTarget, self::FOUND, $this->headers);
+    }
+
+    /**
+     * 返回（重導回）上一個路由
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 重新導向
+     */
+    public function back()
+    {
+        $this->emptyValueProcessor();
+
+        return redirect()->back(self::FOUND, $this->headers);
     }
 }

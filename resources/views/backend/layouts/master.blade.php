@@ -8,6 +8,7 @@
     <script src="{{ mix('js/app.js') }}"></script>
     <script src="/js/backend.js"></script>
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/custom.min.css">
 </head>
 <body>
     @include('backend.layouts.header')
@@ -16,6 +17,14 @@
         <div class="row">
             <div class="col-12">
                 @yield('content')
+            </div>
+        </div>
+    </div>
+
+    <div id="footer" class="container-fluid bg-light border-top border-dark">
+        <div class="d-flex justify-content-center align-content-end flex-wrap">
+            <div class="col-12 p-0 pt-3">
+                @include('layouts.footer')
             </div>
         </div>
     </div>

@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\BearerTokenService;
 use App\Services\ResponseService;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthenticationController extends Controller
 {
+    use AuthenticatesUsers;
+    
     /**
      * 回應
      * 
@@ -40,6 +43,27 @@ class AuthenticationController extends Controller
     }
 
     /**
+     * 變更登入使用者名稱使用的欄位
+     * 
+     * @return string
+     */
+    public function username()
+    {
+        return 'username';
+    }
+
+    /**
+     * 註冊
+     * 
+     * @param \Illuminate\Http\Request $request HTTP 請求，應當包含註冊用的帳號及密碼
+     * @return \Illuminate\Http\JsonResponse 註冊成功或失敗的回應
+     */
+    public function register(Request $request)
+    {
+        //
+    }
+
+    /**
      * 登入
      * 
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含登入用的帳號及密碼
@@ -62,7 +86,7 @@ class AuthenticationController extends Controller
             return $this->response->setError('找不到該使用者名稱！')->setCode($this->response::BAD_REQUEST)->json();
         }
 
-        $auth = Hash::check($request->input('password'), $user->password);
+        $auth = Auth::attempt($request->only('username', 'password'));
 
         if (!$auth) {
             return $this->response->setError('密碼不正確')->setCode($this->response::BAD_REQUEST)->json();
@@ -72,8 +96,6 @@ class AuthenticationController extends Controller
 
         $user->token = $token;
         $user = $user->toArray();
-
-        session()->put('user', $user);
 
         return $this->response->setHeaders(['Authorization' => 'Bearer ' . $token])->json();
     }
@@ -89,7 +111,7 @@ class AuthenticationController extends Controller
 
         $this->token->forgetUserInformation($token);
 
-        session()->forget('user');
+        Auth::logoutCurrentDevice();
         session()->regenerate();
 
         return redirect(route('login'));

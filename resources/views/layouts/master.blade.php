@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title') | 超異域公主連結資料 API</title>
     <script src="{{ mix('js/app.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/custom.min.css">
 </head>
 <body>
     @include('layouts.header')
@@ -19,9 +20,9 @@
         </div>
     </div>
 
-    <div class="container-fluid">
-        <div class="d-flex justify-content-center">
-            <div class="col-7 p-3">
+    <div id="footer" class="container-fluid bg-light border-top border-dark" v-cloak>
+        <div class="d-flex justify-content-center align-content-end flex-wrap">
+            <div class="col-12 p-0 pt-3">
                 @include('layouts.footer')
             </div>
         </div>
