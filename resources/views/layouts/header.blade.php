@@ -11,6 +11,10 @@
                     {
                         name: 'API 一覽',
                         route: '/api/all'
+                    },
+                    {
+                        name: '版本紀錄',
+                        route: '/version/history'
                     }
                 ],
             },
@@ -32,8 +36,8 @@
     });
 </script>
 
-<nav id="header" class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">超異域公主連結資料 API</a>
+<nav id="header" class="navbar navbar-expand-lg navbar-light bg-light" v-cloak>
+    <a class="navbar-brand" href="/">超異域公主連結資料 API</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>

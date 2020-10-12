@@ -29,7 +29,7 @@
                     },
                     fireLogin: function () {
                         if (this.lusername.length > 0 && this.lpassword.length > 0) {
-                            axios.post('/api/v1/authentication/login', {
+                            axios.post('/admin/login', {
                                 username: this.lusername,
                                 password: this.lpassword,
                             })
@@ -93,10 +93,10 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">登入</a>
+                        <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">登入共同編輯資料</a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="true">註冊</a>
+                        <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="true">申請共同資料編輯權</a>
                     </li>
                 </ul>
             </div>
@@ -116,7 +116,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">...</div>
+                <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                    <div class="card-body text-center">
+                        <span class="h4 text-primary"><strong>建置中...</strong></span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal fade" id="alertMsg" tabindex="-1" aria-labelledby="alertMsgLabel" aria-hidden="true">

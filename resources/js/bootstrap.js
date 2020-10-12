@@ -41,3 +41,25 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+document.addEventListener('DOMContentLoaded', function (e) {
+    new Vue({
+        el: '#footer',
+        data: {
+            versionId: null,
+            loading: true
+        },
+        created: function () {
+            axios.get('/api/v1/version')
+                .then((res) => {
+                    this.versionId = res.data.data;
+                })
+                .catch((errors) => {
+                    console.log(errors);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        }
+    });
+});

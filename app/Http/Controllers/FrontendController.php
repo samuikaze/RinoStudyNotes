@@ -44,4 +44,14 @@ class FrontendController extends Controller
     {
         return $this->response->setView('apilist')->view();
     }
+
+    /**
+     * 版本紀錄
+     * 
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function versionList()
+    {
+        return $this->response->setView('version')->view();
+    }
 }

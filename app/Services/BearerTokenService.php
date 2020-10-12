@@ -38,6 +38,8 @@ class BearerTokenService
             $data = $data->toArray();
         }
 
+        $data = encrypt($data);
+
         if (is_null($token)) {
             do {
                 $token = Str::random(120);
@@ -56,6 +58,7 @@ class BearerTokenService
      * 取得使用者資訊
      * 
      * @param string|null $token
+     * @return array|bool 資料或 false
      */
     public function getUserInformation(string $token = null)
     {
@@ -63,7 +66,7 @@ class BearerTokenService
             $userinfo = Cache::get($token);
             
             if (!empty($userinfo)) {
-                return $userinfo;
+                return decrypt($userinfo);
             }
         }
 

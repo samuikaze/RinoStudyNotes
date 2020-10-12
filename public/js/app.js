@@ -49964,6 +49964,27 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: true
 // });
 
+document.addEventListener('DOMContentLoaded', function (e) {
+  new Vue({
+    el: '#footer',
+    data: {
+      versionId: null,
+      loading: true
+    },
+    created: function created() {
+      var _this = this;
+
+      axios.get('/api/v1/version').then(function (res) {
+        _this.versionId = res.data.data;
+      })["catch"](function (errors) {
+        console.log(errors);
+      })["finally"](function () {
+        _this.loading = false;
+      });
+    }
+  });
+});
+
 /***/ }),
 
 /***/ "./resources/js/components/ExampleComponent.vue":

@@ -19,11 +19,18 @@ Route::get('/', 'FrontendController@index');
 // API 一覽
 Route::get('/api/all', 'FrontendController@apiList');
 
+// 版本紀錄
+Route::get('/version/history', 'FrontendController@versionList');
+
 // 管理介面
 Route::group(['prefix' => 'admin'], function () {
-    Route::get('/', 'Backend\ViewController@index');
+    // 會驗證登入狀態的路由
+    Route::group(['middleware' => 'verify.backend'], function () {
+        Route::get('/', 'Backend\ViewController@index');
+    });
 
     Route::get('/authentication', 'Backend\ViewController@login')->name('login');
 
+    Route::post('/login', 'Backend\AuthenticationController@login');
     Route::get('/logout', 'Backend\AuthenticationController@logout');
 });
