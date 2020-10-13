@@ -106,7 +106,7 @@
             <div class="card-body">
                 <h5 class="card-title">更新紀錄</h5>
                 <p class="card-text">下面會逐一列出本站改版的歷史紀錄，可以從 GitHub 取得更詳細的更新紀錄。</p>
-                <div v-if="loading" class="text-primary h4 text-center pt-3">
+                <div v-if="loading" class="h4 text-center pt-3">
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                     <span><strong>資料讀取中...</strong></span>
                 </div>

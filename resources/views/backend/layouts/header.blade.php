@@ -27,6 +27,7 @@
                     <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/>
                 </svg>&nbsp;
                 @{{ user.nickname }}
+                <span v-if="user.role_of == 1" class="text-secondary">(審核中)</span>
                 &nbsp;&nbsp;
                 <a href="#" class="text-dark" v-on:click.prevent="fireLogout()" title="登出">
                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-lightning-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

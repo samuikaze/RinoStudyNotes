@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
                 'table' => 'users',
                 'data' => [
                     [
-                        'role_of' => 1,
+                        'role_of' => 2,
                         'username' => 'administrator',
                         'password' => Hash::make('123'),
                         'nickname' => '超級管理員',

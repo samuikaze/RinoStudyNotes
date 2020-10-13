@@ -10,6 +10,10 @@
                 data: {
                     lusername: '',
                     lpassword: '',
+                    rusername: '',
+                    rpassword: '',
+                    pw_conf: '',
+                    rnickname: '',
                     loading: false,
                     msg: '',
                     msgType: 'info',
@@ -35,7 +39,7 @@
                             })
                                 .then((res) => {
                                     Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
-                                    window.location.href = '/admin/';
+                                    window.location.href = '/admin';
                                 })
                                 .catch((errors) => {
                                     this.showMsg('error', this.getErrorMsg(errors));
@@ -48,8 +52,29 @@
                             }
                         }
                     },
-                    fireRegister: function () {
-                        //
+                    fireRegister: function (event) {
+                        if (this.rpassword != this.pw_conf) {
+                            this.showMsg('error', '兩次輸入的密碼不相同，請重新輸入');
+                            return ;
+                        }
+                        event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;讀取中';
+                        event.target.disabled = true;
+                        axios.post('/admin/register', {
+                            username: this.rusername,
+                            password: this.rpassword,
+                            password_confirmation: this.pw_conf, 
+                            nickname: (this.rnickname.length > 0) ? this.rnickname : null
+                        })
+                            .then((res) => {
+                                Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
+                                event.target.innerHTML = '跳轉中';
+                                window.location.href = '/admin';
+                            })
+                            .catch((errors) => {
+                                this.showMsg('error', this.getErrorMsg(errors));
+                                event.target.innerHTML = '申請';
+                                event.target.disabled = false;
+                            });
                     },
                 },
                 computed: {
@@ -117,8 +142,26 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                    <div class="card-body text-center">
-                        <span class="h4 text-primary"><strong>建置中...</strong></span>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="rUsername">使用者名稱</label>
+                            <input type="text" class="form-control" id="rUsername" v-model="rusername" placeholder="請輸入使用者名稱" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rPassword">密碼</label>
+                            <input type="password" class="form-control" id="rPassword" v-model="rpassword" placeholder="請輸入密碼" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rPasswordConf">確認密碼</label>
+                            <input type="password" class="form-control" id="rPasswordConf" v-model="pw_conf" placeholder="請再次輸入密碼" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rNickname">暱稱</label>
+                            <input type="text" class="form-control" id="rNickname" v-model="rnickname" placeholder="請輸入暱稱，留空會使用使用者名稱當作暱稱">
+                        </div>
+                        <div class="text-center">
+                            <button type="button" v-on:click="fireRegister($event)" class="btn btn-primary">申請</button>
+                        </div>
                     </div>
                 </div>
             </div>
