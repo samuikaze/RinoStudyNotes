@@ -9,7 +9,9 @@ use App\Services\ResponseService;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AuthenticationController extends Controller
 {
@@ -60,7 +62,29 @@ class AuthenticationController extends Controller
      */
     public function register(Request $request)
     {
-        //
+        $refused = ['administrator', 'admin', 'systemop', 'sysop', 'root'];
+
+        $validator = Validator::make($request->all(), [
+            'username' => ['required', 'string', Rule::notIn($refused), 'unique:users,username'],
+            'password' => ['required', 'confirmed', 'string'],
+            'nickname' => ['nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError($validator->errors()->first())
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
+        }
+
+        User::create([
+            'username' => $request->input('username'),
+            'password' => Hash::make($request->input('password')),
+            'nickname' => (is_null($request->input('nickname'))) ? $request->input('username') : $request->input('nickname'),
+            'role_of' => 1,
+        ]);
+
+        return $this->login($request);
     }
 
     /**

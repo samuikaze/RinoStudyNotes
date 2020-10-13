@@ -32,5 +32,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('/authentication', 'Backend\ViewController@login')->name('login');
 
     Route::post('/login', 'Backend\AuthenticationController@login');
+    Route::post('/register', 'Backend\AuthenticationController@register');
     Route::get('/logout', 'Backend\AuthenticationController@logout');
 });
