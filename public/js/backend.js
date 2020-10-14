@@ -98,6 +98,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
     el: '#header',
     data: {
       user: {},
+      eUser: {},
+      eOrigPassword: '',
+      ePassword: '',
+      ePasswordConf: '',
       loading: true,
       routes: [{
         name: '首頁',
@@ -105,13 +109,40 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }]
     },
     methods: {
+      getErrorMsg: function getErrorMsg(error) {
+        if (error.response == null) {
+          return error;
+        } else {
+          return error.response.data.errors;
+        }
+      },
+      fireEditProfile: function fireEditProfile(event) {
+        var _this = this;
+
+        event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;送出請求中...';
+        event.target.disabled = true;
+        axios.post('/api/v1/user', {
+          _method: 'patch',
+          nickname: this.eUser.nickname.length == 0 ? null : this.eUser.nickname
+        }).then(function (res) {
+          _this.user = res.data.data;
+          _this.eUser = _.cloneDeep(_this.user);
+          _this.user.nickname = _this.user.nickname == null ? _this.user.username : _this.user.nickname;
+        })["catch"](function (errors) {
+          alert(_this.getErrorMsg(errors));
+        })["finally"](function () {
+          event.target.innerHTML = '儲存';
+          event.target.disabled = false;
+          $('#editUserData').modal('hide');
+        });
+      },
       fireLogout: function fireLogout() {
         Cookies.remove('token');
         window.location.href = '/admin/logout';
       }
     },
     created: function created() {
-      var _this = this;
+      var _this2 = this;
 
       var token = Cookies.get('token');
 
@@ -120,11 +151,28 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
 
       axios.get('/api/v1/user').then(function (res) {
-        _this.user = res.data.data;
+        _this2.user = res.data.data;
+        _this2.eUser = _.cloneDeep(_this2.user);
+        _this2.user.nickname = _this2.user.nickname == null ? _this2.user.username : _this2.user.nickname;
       })["catch"](function (errors) {
         console.log(errors);
       })["finally"](function () {
-        _this.loading = false;
+        _this2.loading = false;
+
+        if (_this2.user.length === 0 && window.location.pathname.search('/admin/authentication') < 0) {
+          window.location.href = '/admin/authentication';
+        }
+
+        Vue.nextTick(function () {
+          $('#user-popover').popover({
+            placement: 'bottom',
+            title: '使用者選單',
+            content: "<ul class=\"list-group\">\n                                        <button \n                                         class=\"list-group-item list-group-item-action text-center h5 text-primary\"\n                                         data-toggle=\"modal\"\n                                         data-target=\"#editUserData\"\n                                        >\n                                            \u4FEE\u6539\u8CC7\u6599\n                                        </button>\n                                </ul>",
+            html: true,
+            sanitize: false,
+            trigger: 'focus'
+          });
+        });
       });
     },
     computed: {
@@ -132,10 +180,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         return window.location.pathname;
       },
       routeClass: function routeClass() {
-        var _this2 = this;
+        var _this3 = this;
 
         return function (r) {
-          if (_this2.route == r.route) {
+          if (_this3.route == r.route) {
             return r.disabled === true ? 'nav-item disabled' : 'nav-item active';
           } else {
             return r.disabled === true ? 'nav-item disabled' : 'nav-item';

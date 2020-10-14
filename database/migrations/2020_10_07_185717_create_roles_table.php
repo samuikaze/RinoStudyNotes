@@ -15,7 +15,7 @@ class CreateRolesTable extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->integer('accessible_of')->comment('可存取項目');
+            $table->longText('accessibles')->comment('可存取項目');
             $table->string('name')->comment('權限名稱');
             $table->timestamps();
         });

@@ -7,7 +7,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li v-for="r in routes" :class="routeClass(r)">
-                <a class="nav-link" :href="r.route">@{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span></a>
+                <a class="nav-link" :href="r.route" onclick="return false;">@{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span></a>
             </li>
         </ul>
         <span v-if="!Array.isArray(user)">
@@ -21,13 +21,15 @@
                 讀取中...
             </template>
             <template v-else>
-                <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-person-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z"/>
-                    <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                    <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/>
-                </svg>&nbsp;
-                @{{ user.nickname }}
-                <span v-if="user.role_of == 1" class="text-secondary">(審核中)</span>
+                <span id="user-popover" tabindex="0" data-container="body" data-toggle="popover" data-placement="bottom" title="使用者選單">
+                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-person-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z"/>
+                        <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/>
+                    </svg>&nbsp;
+                    @{{ user.nickname }}
+                    <span v-if="user.role_of == 1" class="text-secondary">(審核中)</span>
+                </span>
                 &nbsp;&nbsp;
                 <a href="#" class="text-dark" v-on:click.prevent="fireLogout()" title="登出">
                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-lightning-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -44,5 +46,64 @@
             </svg>&nbsp;
             一般訪客
         </span>
+    </div>
+
+    <div class="modal fade" id="editUserData" tabindex="-1" aria-labelledby="editUserDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserDataLabel">編輯使用者資料</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body fixed-body">
+                    <div class="row">
+                        <div class="col-3">
+                          <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                            <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true">基本資料</a>
+                            <a class="nav-link" id="v-pills-password-tab" data-toggle="pill" href="#v-pills-password" role="tab" aria-controls="v-pills-password" aria-selected="false">修改密碼</a>
+                          </div>
+                        </div>
+                        <div class="col-9">
+                          <div class="tab-content" id="v-pills-tabContent">
+                            {{-- 修改資料 --}}
+                            <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                                <div class="form-group row">
+                                    <label for="staticUsername" class="col-sm-3 col-form-label">使用者名稱</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" readonly class="form-control-plaintext" id="staticUsername" :value="eUser.username">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="e-nickname">暱稱</label>
+                                    <input type="text" v-model="eUser.nickname" class="form-control" id="e-nickname" placeholder="請輸入新暱稱，未輸入會以使用者名稱當作暱稱">
+                                </div>
+                            </div>
+                            {{-- 修改密碼 --}}
+                            <div class="tab-pane fade" id="v-pills-password" role="tabpanel" aria-labelledby="v-pills-password-tab">
+                                <div class="form-group">
+                                    <label for="e-password-orig">原密碼</label>
+                                    <input type="password" v-model="eOrigPassword" class="form-control" id="e-password-orig" placeholder="請輸入原密碼">
+                                </div>
+                                <div class="form-group">
+                                    <label for="e-password">修改密碼</label>
+                                    <input type="password" v-model="ePassword" class="form-control" id="e-password" placeholder="請輸入新密碼">
+                                </div>
+                                <div class="form-group">
+                                    <label for="e-pswd-conf">確認密碼</label>
+                                    <input type="password" v-model="ePasswordConf" class="form-control" id="e-pswd-conf" placeholder="請再次輸入新密碼">
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary" v-on:click="fireEditProfile($event)">儲存</button>
+                </div>
+            </div>
+        </div>
     </div>
 </nav>
