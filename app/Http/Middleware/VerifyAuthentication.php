@@ -2,13 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Services\BearerTokenService;
 use App\Services\ResponseService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class VerifyAdminAccessible
+class VerifyAuthentication
 {
     /**
      * 回應
@@ -54,13 +55,13 @@ class VerifyAdminAccessible
                 return $this->response->setError('Access Denied')->setCode($this->response::FORBIDDEN)->json();
             }
         
-            $user = $this->token->getUserInformation($token);
+            $verify = $this->token->verifyToken($token);
 
-            if (!$user) {
+            if ($verify === false) {
                 return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
             }
 
-            $this->token->extendExpireTime($token);
+            $user = User::where('id', $verify)->first()->toArray();
 
             $request->merge(['user' => $user]);
 

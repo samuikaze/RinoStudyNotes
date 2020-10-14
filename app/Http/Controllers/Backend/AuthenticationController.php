@@ -116,10 +116,9 @@ class AuthenticationController extends Controller
             return $this->response->setError('密碼不正確')->setCode($this->response::BAD_REQUEST)->json();
         }
 
-        $token = $this->token->putUserInformation(collect($user->toArray())->except('password'));
+        $token = $this->token->generateToken($user->id);
 
-        $user->token = $token;
-        $user = $user->toArray();
+        session()->put('user-token', $token);
 
         return $this->response->setHeaders(['Authorization' => 'Bearer ' . $token])->json();
     }
@@ -131,9 +130,9 @@ class AuthenticationController extends Controller
      */
     public function logout()
     {
-        $token = session()->get('user.token');
+        $token = session()->get('user-token');
 
-        $this->token->forgetUserInformation($token);
+        $this->token->removeToken($token);
 
         Auth::logoutCurrentDevice();
         session()->regenerate();
@@ -151,12 +150,46 @@ class AuthenticationController extends Controller
     {
         $token = $request->bearerToken();
 
-        $user = $this->token->getUserInformation($token);
+        $verify = $this->token->verifyToken($token);
 
-        if ($user) {
+        if ($verify !== false) {
+            $user = User::where('id', $verify)->first()->toArray();
+
+            $this->token->extendExpireTime($token);
+
             return $this->response->setData($user)->json();
         }
 
         return $this->response->json();
+    }
+
+    /**
+     * 編輯使用者資料
+     * 
+     * @param \Illuminate\Http\Request $request HTTP 請求，應當包含要編輯的資料
+     * @return \Illuminate\Http\JsonResponse 返回使用者資料
+     */
+    public function editProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nickname' => ['nullable', 'string', 'max:10'],
+            'password' => ['nullable', 'confirmed', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError($validator->errors()->first())
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
+        }
+
+        User::where('id', $request->input('user.id'))->update([
+            'nickname' => $request->input('nickname'),
+        ]);
+
+        $user = $request->input('user');
+        $user['nickname'] = $request->input('nickname');
+
+        return $this->response->setData($user)->json();
     }
 }

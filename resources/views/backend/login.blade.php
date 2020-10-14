@@ -31,17 +31,22 @@
                             return error.response.data.errors;
                         }
                     },
-                    fireLogin: function () {
+                    fireLogin: function (event) {
                         if (this.lusername.length > 0 && this.lpassword.length > 0) {
+                            event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;登入中';
+                            event.target.disabled = true;
                             axios.post('/admin/login', {
                                 username: this.lusername,
                                 password: this.lpassword,
                             })
                                 .then((res) => {
+                                    event.target.innerHTML = '跳轉中...';
                                     Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
                                     window.location.href = '/admin';
                                 })
                                 .catch((errors) => {
+                                    event.target.innerHTML = '登入';
+                                    event.target.disabled = false;
                                     this.showMsg('error', this.getErrorMsg(errors));
                                 });
                         } else {
@@ -137,7 +142,7 @@
                             <input type="password" class="form-control" id="lPassword" v-model="lpassword" placeholder="請輸入密碼" required>
                         </div>
                         <div class="text-center">
-                            <button type="button" v-on:click="fireLogin()" class="btn btn-primary">登入</button>
+                            <button type="button" v-on:click="fireLogin($event)" class="btn btn-primary">登入</button>
                         </div>
                     </div>
                 </div>

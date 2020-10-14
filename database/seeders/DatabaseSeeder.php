@@ -18,6 +18,21 @@ class DatabaseSeeder extends Seeder
     {
         $data = [
             [
+                'table' => 'roles',
+                'data' => [
+                    [
+                        'accessibles' => json_encode([], JSON_UNESCAPED_UNICODE),
+                        'name' => '待審核',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ], [
+                        'accessibles' => json_encode(['sysop', 'viewdata', 'editdata'], JSON_UNESCAPED_UNICODE),
+                        'name' => '超級管理員',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]
+                ],
+            ], [
                 'table' => 'users',
                 'data' => [
                     [
@@ -34,9 +49,14 @@ class DatabaseSeeder extends Seeder
                 'data' => [
                     [
                         'version_id' => '0.0.1a',
-                        'content' => json_encode(['專案建置中'], JSON_UNESCAPED_UNICODE),
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'content' => json_encode(['建立專案'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-12 02:40:00'),
+                        'updated_at' => Carbon::parse('2020-10-12 02:40:00'),
+                    ], [
+                        'version_id' => '0.0.2',
+                        'content' => json_encode(['完成登入及註冊功能', '完成後台登入驗證'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-15 01:12:00'),
+                        'updated_at' => Carbon::parse('2020-10-15 01:12:00'),
                     ],
                 ],
             ],
@@ -49,6 +69,7 @@ class DatabaseSeeder extends Seeder
          */
         print("\033[33mSeeding: \033[39m開始執行 Seed。\n");
 
+        $start = microtime(true);
         $times = 0;
         $rows = 0;
         foreach ($data as $d) {
@@ -57,6 +78,8 @@ class DatabaseSeeder extends Seeder
             $times += 1;
         }
 
-        print("\033[32mSeeded: \033[39mSeed 執行完畢。\n");
+        $duration = round(microtime(true) - $start, 3);
+
+        print("\033[32mSeeded: \033[39mSeed 執行完畢，總共耗時 $duration 秒，查詢 $times 次，影響 $rows 行。\n");
     }
 }

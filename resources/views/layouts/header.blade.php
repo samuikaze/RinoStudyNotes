@@ -45,7 +45,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li v-for="r in routes" :class="routeClass(r)">
-                <a class="nav-link" :href="r.route">@{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span></a>
+                <a class="nav-link" :href="r.route" onclick="return false;">@{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span></a>
             </li>
             {{-- <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

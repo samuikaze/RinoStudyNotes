@@ -23,6 +23,9 @@ Route::group(['prefix' => 'v1'], function () {
     // 後臺用路由
     Route::group(['as' => 'webadmin.'], function () {
         Route::get('/user', 'Backend\AuthenticationController@userInfo');
+        Route::group(['middleware' => 'verify.backend'], function () {
+            Route::patch('/user', 'Backend\AuthenticationController@editProfile');
+        });
     });
 
     // 前端網頁用路由
