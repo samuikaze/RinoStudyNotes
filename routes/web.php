@@ -24,9 +24,17 @@ Route::get('/version/history', 'FrontendController@versionList');
 
 // 管理介面
 Route::group(['prefix' => 'admin'], function () {
-    // 會驗證登入狀態的路由
+    // 會驗證登入狀態路由
     Route::group(['middleware' => 'verify.backend'], function () {
-        Route::get('/', 'Backend\ViewController@index');
+        // 公共路由，不會驗證存取權限
+        Route::group(['middleware' => 'verify.permission:public'], function () {
+            Route::get('/', 'Backend\ViewController@index');
+        });
+
+        // 有權才可檢視的路由
+        Route::group(['middleware' => 'verify.permission:view'], function () {
+            Route::get('/verify', 'Backend\ViewController@verifyEditableApply');
+        });
     });
 
     Route::get('/authentication', 'Backend\ViewController@login')->name('login');

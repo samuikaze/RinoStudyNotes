@@ -13,21 +13,21 @@ class VerifyAuthentication
 {
     /**
      * 回應
-     * 
+     *
      * @var \App\Services\ResponseService
      */
     protected $response;
 
     /**
      * 權杖
-     * 
+     *
      * @var \App\Services\BearerTokenService
      */
     protected $token;
 
     /**
      * 建構函式
-     * 
+     *
      * @return void
      */
     public function __construct(
@@ -48,13 +48,13 @@ class VerifyAuthentication
     public function handle(Request $request, Closure $next)
     {
         // 如果是 API
-        if ($request->wantsJson() && $request->isJson()) {
+        if ($request->wantsJson() || $request->isJson()) {
             $token = $request->bearerToken();
 
             if (empty($token)) {
                 return $this->response->setError('Access Denied')->setCode($this->response::FORBIDDEN)->json();
             }
-        
+
             $verify = $this->token->verifyToken($token);
 
             if ($verify === false) {

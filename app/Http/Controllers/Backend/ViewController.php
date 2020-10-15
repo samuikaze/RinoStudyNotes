@@ -44,4 +44,14 @@ class ViewController extends Controller
     {
         return $this->response->setView('backend.login')->view();
     }
+
+    /**
+     * 審核申請
+     * 
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function verifyEditableApply()
+    {
+        return $this->response->setView('backend.verifyapply')->view();
+    }
 }

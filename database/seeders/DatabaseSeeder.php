@@ -57,6 +57,11 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['完成登入及註冊功能', '完成後台登入驗證'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-15 01:12:00'),
                         'updated_at' => Carbon::parse('2020-10-15 01:12:00'),
+                    ], [
+                        'version_id' => '0.0.3',
+                        'content' => json_encode(['完成權限驗證', '審核頁面完成，功能尚未完成'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-16 02:35:00'),
+                        'updated_at' => Carbon::parse('2020-10-16 02:35:00'),
                     ],
                 ],
             ],
@@ -64,7 +69,7 @@ class DatabaseSeeder extends Seeder
 
         /**
          * 開始執行 Seed
-         * 
+         *
          * @link https://stackoverflow.com/questions/34034730/how-to-enable-color-for-php-cli PHP-CLI-Color
          */
         print("\033[33mSeeding: \033[39m開始執行 Seed。\n");
