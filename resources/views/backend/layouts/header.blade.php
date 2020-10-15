@@ -3,12 +3,37 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-  
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li v-for="r in routes" :class="routeClass(r)">
-                <a class="nav-link" :href="r.route" onclick="return false;">@{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span></a>
-            </li>
+            <template v-for="r in routes">
+                <li v-if="!Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" :class="routeClass(r)">
+                    <a class="nav-link"
+                       v-bind:class="{disabled: r.disabled}"
+                       :href="r.route" :onclick="(route == r.route) ? 'return false;' : 'return true;'"
+                       :aria-disabled="(r.disabled) ? 'true' : ''"
+                    >
+                        @{{ r.name }} <span v-if="route == r.route" class="sr-only">(current)</span>
+                    </a>
+                </li>
+
+                <li v-if="Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @{{ r.name }}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a v-for="subroute in r.route"
+                           :key="subroute.id"
+                           class="dropdown-item"
+                           v-bind:class="{disabled: subroute.disabled}"
+                           :href="subroute.route"
+                           :aria-disabled="(subroute.disabled) ? 'true' : ''"
+                        >
+                            @{{ subroute.name }}
+                        </a>
+                    </div>
+                </li>
+            </template>
         </ul>
         <span v-if="!Array.isArray(user)">
             <template v-if="loading">
@@ -21,7 +46,7 @@
                 讀取中...
             </template>
             <template v-else>
-                <span id="user-popover" tabindex="0" data-container="body" data-toggle="popover" data-placement="bottom" title="使用者選單">
+                <span id="user-popover" class="pointer" tabindex="0" data-container="body" data-toggle="popover" data-placement="bottom" title="使用者選單">
                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-person-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.468 12.37C12.758 11.226 11.195 10 8 10s-4.757 1.225-5.468 2.37A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z"/>
                         <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
@@ -82,6 +107,7 @@
                             </div>
                             {{-- 修改密碼 --}}
                             <div class="tab-pane fade" id="v-pills-password" role="tabpanel" aria-labelledby="v-pills-password-tab">
+                                <h5 class="text-danger text-center"><strong>請注意，變更密碼後會自動登出，如不變更密碼請留空</strong></h5>
                                 <div class="form-group">
                                     <label for="e-password-orig">原密碼</label>
                                     <input type="password" v-model="eOrigPassword" class="form-control" id="e-password-orig" placeholder="請輸入原密碼">

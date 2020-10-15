@@ -104,8 +104,23 @@ document.addEventListener('DOMContentLoaded', function (e) {
       ePasswordConf: '',
       loading: true,
       routes: [{
+        id: 1,
         name: '首頁',
         route: '/admin'
+      }, {
+        id: 2,
+        name: '系統管理',
+        route: [{
+          id: 1,
+          name: '審核申請',
+          route: '/admin/verify'
+        }, {
+          id: 2,
+          name: '管理共同編輯者',
+          route: '/admin/editors',
+          disabled: true
+        }],
+        sysop: true
       }]
     },
     methods: {
@@ -121,19 +136,41 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
         event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;送出請求中...';
         event.target.disabled = true;
-        axios.post('/api/v1/user', {
+        var data = {
           _method: 'patch',
           nickname: this.eUser.nickname.length == 0 ? null : this.eUser.nickname
-        }).then(function (res) {
+        };
+        var changePW = false;
+
+        if (this.eOrigPassword.length > 0 && this.ePassword.length > 0 && this.ePasswordConf.length > 0) {
+          Object.assign(data, {
+            origPswd: this.eOrigPassword,
+            newPswd: this.ePassword,
+            newPswd_confirmation: this.ePasswordConf
+          });
+          changePW = true;
+        }
+
+        axios.post('/api/v1/user', data).then(function (res) {
           _this.user = res.data.data;
           _this.eUser = _.cloneDeep(_this.user);
           _this.user.nickname = _this.user.nickname == null ? _this.user.username : _this.user.nickname;
+          _this.eOrigPassword = '';
+          _this.ePassword = '';
+          _this.ePasswordConf = '';
+
+          if (changePW) {
+            window.location.href = '/admin/logout';
+            event.target.innerHTML = '登出中';
+          } else {
+            event.target.innerHTML = '儲存';
+            event.target.disabled = false;
+            $('#editUserData').modal('hide');
+          }
         })["catch"](function (errors) {
           alert(_this.getErrorMsg(errors));
-        })["finally"](function () {
           event.target.innerHTML = '儲存';
           event.target.disabled = false;
-          $('#editUserData').modal('hide');
         });
       },
       fireLogout: function fireLogout() {
@@ -167,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           $('#user-popover').popover({
             placement: 'bottom',
             title: '使用者選單',
-            content: "<ul class=\"list-group\">\n                                        <button \n                                         class=\"list-group-item list-group-item-action text-center h5 text-primary\"\n                                         data-toggle=\"modal\"\n                                         data-target=\"#editUserData\"\n                                        >\n                                            \u4FEE\u6539\u8CC7\u6599\n                                        </button>\n                                </ul>",
+            content: "<ul class=\"list-group\">\n                                  <button\n                                    class=\"list-group-item list-group-item-action text-center h5 text-primary\"\n                                    data-toggle=\"modal\"\n                                    data-target=\"#editUserData\"\n                                  >\n                                    \u4FEE\u6539\u8CC7\u6599\n                                  </button>\n                                </ul>",
             html: true,
             sanitize: false,
             trigger: 'focus'

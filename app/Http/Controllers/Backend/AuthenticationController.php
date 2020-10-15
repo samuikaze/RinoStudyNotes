@@ -173,7 +173,8 @@ class AuthenticationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nickname' => ['nullable', 'string', 'max:10'],
-            'password' => ['nullable', 'confirmed', 'string'],
+            'origPswd' => ['required_with:newPswd', 'string'],
+            'newPswd' => ['nullable', 'confirmed', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -181,6 +182,31 @@ class AuthenticationController extends Controller
                         ->setError($validator->errors()->first())
                         ->setCode($this->response::BAD_REQUEST)
                         ->json();
+        }
+
+        if ($request->has('newPswd')) {
+            $user = User::where('id', $request->input('user.id'))
+                        ->first()
+                        ->makeVisible(['password']);
+
+            if (empty($user)) {
+                return $this->response
+                            ->setError('找不到此使用者名稱')
+                            ->setCode(400)
+                            ->json();
+            }
+
+            if (! Hash::check($request->input('origPswd'), $user->password)) {
+                return $this->response
+                            ->setError('密碼不正確')
+                            ->setCode(400)
+                            ->json();
+            }
+
+            User::where('id', $request->input('user.id'))->update([
+                'nickname' => $request->input('nickname'),
+                'password' => Hash::make($request->input('newPswd')),
+            ]);
         }
 
         User::where('id', $request->input('user.id'))->update([
