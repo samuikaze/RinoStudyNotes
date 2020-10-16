@@ -49949,8 +49949,9 @@ try {
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 window.Cookies = __webpack_require__(/*! js-cookie */ "./node_modules/js-cookie/src/js.cookie.js");
+var token = Cookies.get('token') == null ? null : Cookies.get('token');
 window.axios.defaults.headers.common = {
-  'Authorization': 'Bearer ' + Cookies.get('token'),
+  'Authorization': 'Bearer ' + token,
   'Accept': 'application/json',
   'Content-Type': 'application/json',
   'X-Requested-With': 'XMLHttpRequest'

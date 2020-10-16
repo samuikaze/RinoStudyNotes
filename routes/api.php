@@ -20,20 +20,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/test', 'Api\CharacterController@test');
     });
 
-    // 後臺用路由
-    Route::group(['as' => 'webadmin.'], function () {
-        Route::get('/user', 'Backend\AuthenticationController@userInfo');
-        // 會驗登入的路由
-        Route::group(['middleware' => 'verify.backend'], function () {
-            Route::patch('/user', 'Backend\AuthenticationController@editProfile');
-
-            // 會驗權限的路由
-            Route::group(['middleware' => 'verify.permission:view'], function () {
-                Route::get('/user/verifying', 'Backend\SystemConfigController@getVerifyingUsers');
-            });
-        });
-    });
-
     // 前端網頁用路由
     Route::group(['as' => 'webfront.'], function () {
         Route::get('/version', 'WebController@getVersionId');

@@ -63,17 +63,24 @@ class VerifyAuthentication
 
             $user = User::where('id', $verify)->first()->toArray();
 
+            if ($user['status'] == 2) {
+                return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
+            }
+
             $request->merge(['user' => $user]);
 
             return $next($request);
         }
         // 如果是瀏覽器
         else {
-            if (!Auth::check()) {
-                return $this->response->setRedirectTarget(route('login'))->redirect();
+            if (Auth::check()) {
+                // 沒被停權
+                if (Auth::user()->status != 2) {
+                    return $next($request);
+                }
             }
 
-            return $next($request);
+            return $this->response->setRedirectTarget(route('logout'))->redirect();
         }
     }
 }

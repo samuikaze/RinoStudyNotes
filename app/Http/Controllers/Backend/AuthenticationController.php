@@ -16,24 +16,24 @@ use Illuminate\Validation\Rule;
 class AuthenticationController extends Controller
 {
     use AuthenticatesUsers;
-    
+
     /**
      * 回應
-     * 
+     *
      * @var \App\Services\ResponseService
      */
     protected $response;
 
     /**
      * 權杖
-     * 
+     *
      * @var \App\Services\BearerTokenService
      */
     protected $token;
 
     /**
      * 建構函式
-     * 
+     *
      * @return void
      */
     public function __construct(
@@ -46,7 +46,7 @@ class AuthenticationController extends Controller
 
     /**
      * 變更登入使用者名稱使用的欄位
-     * 
+     *
      * @return string
      */
     public function username()
@@ -56,7 +56,7 @@ class AuthenticationController extends Controller
 
     /**
      * 註冊
-     * 
+     *
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含註冊用的帳號及密碼
      * @return \Illuminate\Http\JsonResponse 註冊成功或失敗的回應
      */
@@ -81,7 +81,6 @@ class AuthenticationController extends Controller
             'username' => $request->input('username'),
             'password' => Hash::make($request->input('password')),
             'nickname' => (is_null($request->input('nickname'))) ? $request->input('username') : $request->input('nickname'),
-            'role_of' => 1,
         ]);
 
         return $this->login($request);
@@ -89,7 +88,7 @@ class AuthenticationController extends Controller
 
     /**
      * 登入
-     * 
+     *
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含登入用的帳號及密碼
      * @return \Illuminate\Http\JsonResponse 登入成功或失敗的回應
      */
@@ -110,6 +109,10 @@ class AuthenticationController extends Controller
             return $this->response->setError('找不到該使用者名稱！')->setCode($this->response::BAD_REQUEST)->json();
         }
 
+        if ($user->status == 2) {
+            return $this->response->setError('該帳號已被停權！')->setCode($this->response::BAD_REQUEST)->json();
+        }
+
         $auth = Auth::attempt($request->only('username', 'password'));
 
         if (!$auth) {
@@ -125,7 +128,7 @@ class AuthenticationController extends Controller
 
     /**
      * 登出
-     * 
+     *
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 重新導向
      */
     public function logout()
@@ -142,7 +145,7 @@ class AuthenticationController extends Controller
 
     /**
      * 取得登入的使用者資訊
-     * 
+     *
      * @param \Illuminate\Http\Request $request HTTP 請求
      * @return \Illuminate\Http\JsonResponse 資料
      */
@@ -165,7 +168,7 @@ class AuthenticationController extends Controller
 
     /**
      * 編輯使用者資料
-     * 
+     *
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含要編輯的資料
      * @return \Illuminate\Http\JsonResponse 返回使用者資料
      */

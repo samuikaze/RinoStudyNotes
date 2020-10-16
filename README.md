@@ -6,7 +6,7 @@
 
 ## TODO List
 1. ✅ 編輯使用者資料
-2. ❌ 審核申請的使用者
+2. ✅ 審核申請的使用者與停權/復權帳號
 3. ❌ 編輯 API 資料
 4. ❌ API 清單
 5. ❌ 編輯使用者權限
@@ -40,7 +40,7 @@
 - 終端機執行 `php artisan key:generate`
 - 啟動網頁伺服器和資料庫或終端機執行 `php artisan serve`
 - 如要部屬到虛擬空間上，請注意須將所有流量重導到 public 資料夾下，下面以 Apache 為例：
-    - 在跟目錄新增 `.htaccess` 檔案。
+    - 在根目錄新增 `.htaccess` 檔案。
     - 在檔案中輸入以下內容後儲存：
     ```xml
     <IfModule mod_rewrite.c>
@@ -53,7 +53,13 @@
 1. 後臺功能
     - 直接使用瀏覽器存取 `http://yourhostingurl/backend` 即可
 2. API 存取
-    - 待更新
+    - 請加入以下列出的所有標頭
+    ```
+    Accept: application/json
+    Content-Type: application/json
+    X-Requested-With: XMLHttpRequest
+    ```
+    - API 路由見[網頁說明](http://smkzsite.byethost15.com/api/all)
 
 ## 授權
 MIT License

@@ -21,13 +21,18 @@ class DatabaseSeeder extends Seeder
                 'table' => 'roles',
                 'data' => [
                     [
-                        'accessibles' => json_encode([], JSON_UNESCAPED_UNICODE),
-                        'name' => '待審核',
+                        'accessibles' => json_encode(['sysop', 'viewdata', 'editdata'], JSON_UNESCAPED_UNICODE),
+                        'name' => '超級管理員',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ], [
-                        'accessibles' => json_encode(['sysop', 'viewdata', 'editdata'], JSON_UNESCAPED_UNICODE),
-                        'name' => '超級管理員',
+                        'accessibles' => json_encode(['viewdata'], JSON_UNESCAPED_UNICODE),
+                        'name' => '見習共同編輯者',
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ], [
+                        'accessibles' => json_encode(['viewdata', 'editdata'], JSON_UNESCAPED_UNICODE),
+                        'name' => '共同編輯者',
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ]
@@ -36,10 +41,11 @@ class DatabaseSeeder extends Seeder
                 'table' => 'users',
                 'data' => [
                     [
-                        'role_of' => 2,
                         'username' => 'administrator',
                         'password' => Hash::make('123'),
                         'nickname' => '超級管理員',
+                        'role_of' => 1,
+                        'status' => 1,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
                     ],
@@ -62,6 +68,11 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['完成權限驗證', '審核頁面完成，功能尚未完成'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-16 02:35:00'),
                         'updated_at' => Carbon::parse('2020-10-16 02:35:00'),
+                    ], [
+                        'version_id' => '0.0.4',
+                        'content' => json_encode(['完成審核頁面全部功能'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-17 03:15:00'),
+                        'updated_at' => Carbon::parse('2020-10-17 03:15:00'),
                     ],
                 ],
             ],
