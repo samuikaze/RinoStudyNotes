@@ -7,7 +7,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <template v-for="r in routes">
-                <li v-if="!Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" :class="routeClass(r)">
+                <li v-if="!Array.isArray(r.route) && ((r.sysop && user.role_of === 1) || !r.sysop)" :key="r.id" :class="routeClass(r)">
                     <a class="nav-link"
                        v-bind:class="{disabled: r.disabled}"
                        :href="r.route" :onclick="(route == r.route) ? 'return false;' : 'return true;'"
@@ -17,7 +17,7 @@
                     </a>
                 </li>
 
-                <li v-if="Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" class="nav-item dropdown">
+                <li v-if="Array.isArray(r.route) && ((r.sysop && user.role_of === 1) || !r.sysop)" :key="r.id" class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @{{ r.name }}
                     </a>
@@ -53,7 +53,8 @@
                         <path fill-rule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/>
                     </svg>&nbsp;
                     @{{ user.nickname }}
-                    <span v-if="user.role_of == 1" class="text-secondary">(審核中)</span>
+                    <span v-if="user.status != 0 && user.role_of == 2" class="text-secondary">(見習生)</span>
+                    <span v-if="user.status == 0" class="text-secondary">(審核中)</span>
                 </span>
                 &nbsp;&nbsp;
                 <a href="#" class="text-dark" v-on:click.prevent="fireLogout()" title="登出">

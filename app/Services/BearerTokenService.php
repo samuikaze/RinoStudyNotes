@@ -10,14 +10,14 @@ class BearerTokenService
 {
     /**
      * 權杖有效期間
-     * 
+     *
      * @var int
      */
     protected $lifetime;
 
     /**
      * 建構函式
-     * 
+     *
      * @return void
      */
     public function __construct()
@@ -27,7 +27,7 @@ class BearerTokenService
 
     /**
      * 產生權杖，因為會檢查資料庫中是否有重複項目，故最多嘗試 10 次
-     * 
+     *
      * @param int $userID 使用者 ID
      * @return string|bool 返回產生的權杖，失敗時會返回 false
      */
@@ -64,13 +64,13 @@ class BearerTokenService
 
     /**
      * 驗證權杖
-     * 
+     *
      * @param string|null $token 由前端傳入的權杖
      * @return int|bool 回傳使用者 ID，失敗時返回 false
      */
     public function verifyToken(string $token = null)
     {
-        if (is_null($token)) {
+        if (is_null($token) || $token == 'null') {
             return false;
         }
 
@@ -89,7 +89,7 @@ class BearerTokenService
 
     /**
      * 刪除權杖
-     * 
+     *
      * @param string $token 由前端傳入的權杖
      * @return bool
      */
@@ -106,7 +106,7 @@ class BearerTokenService
 
     /**
      * 延長權杖生命週期
-     * 
+     *
      * @param string $token 由前端傳入的權杖
      * @return bool
      */
@@ -125,7 +125,7 @@ class BearerTokenService
 
     /**
      * 回收機制，將已過期的權杖從資料庫中移除
-     * 
+     *
      * @return void
      */
     protected function GC()

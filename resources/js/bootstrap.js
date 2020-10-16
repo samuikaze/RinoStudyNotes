@@ -23,8 +23,9 @@ window.axios = require('axios');
 
 window.Cookies = require('js-cookie');
 
+let token = (Cookies.get('token') == null) ? null : Cookies.get('token');
 window.axios.defaults.headers.common = {
-    'Authorization': 'Bearer ' + Cookies.get('token'),
+    'Authorization': 'Bearer ' + token,
     'Accept': 'application/json',
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',

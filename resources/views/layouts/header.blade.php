@@ -45,7 +45,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <template v-for="r in routes">
-                <li v-if="!Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" :class="routeClass(r)">
+                <li v-if="!Array.isArray(r.route) && ((r.sysop && user.role_of === 1) || !r.sysop)" :key="r.id" :class="routeClass(r)">
                     <a class="nav-link"
                        v-bind:class="{disabled: r.disabled}"
                        :href="r.route" :onclick="(route == r.route) ? 'return false;' : 'return true;'"
@@ -55,7 +55,7 @@
                     </a>
                 </li>
 
-                <li v-if="Array.isArray(r.route) && ((r.sysop && user.role_of === 2) || !r.sysop)" :key="r.id" class="nav-item dropdown">
+                <li v-if="Array.isArray(r.route) && ((r.sysop && user.role_of === 1) || !r.sysop)" :key="r.id" class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @{{ r.name }}
                     </a>
@@ -72,6 +72,11 @@
                     </div>
                 </li>
             </template>
+            @auth
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">後台</a>
+                </li>
+            @endauth
         </ul>
     </div>
 </nav>

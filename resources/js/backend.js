@@ -31,6 +31,18 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     }
                   ],
                   sysop: true
+                },
+                {
+                  id: 3,
+                  name: 'API 管理',
+                  route: [
+                    {
+                      id: 1,
+                      name: '角色資料',
+                      route: '/admin/api/character',
+                      disabled: true
+                    },
+                  ]
                 }
             ],
         },
