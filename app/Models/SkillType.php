@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Token extends Model
+class SkillType extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class Token extends Model
      *
      * @var string
      */
-    protected $table = 'tokens';
+    protected $table = 'skill_types';
 
     /**
      * The attributes that are mass assignable.
@@ -22,9 +22,7 @@ class Token extends Model
      * @var array
      */
     protected $fillable = [
-        'user_of',
-        'token',
-        'expire_at',
+        'name',
     ];
 
     /**
@@ -33,18 +31,17 @@ class Token extends Model
      * @var array
      */
     protected $casts = [
-        'expire_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * 關聯 users 表
+     * 關聯 skills 資料表
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function user()
+    public function skills()
     {
-        return $this->hasOne(User::class, 'id', 'user_of');
+        return $this->hasMany(Skill::class, 'skill_type_of', 'id');
     }
 }

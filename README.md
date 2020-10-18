@@ -1,14 +1,14 @@
 ## 公主連結資料 API
 
-!! 這個專案目前還在開發階段 !!
+⚠ 這個專案目前還在開發階段 ⚠
 
 這個專案是為 Line 機器人所寫的資料 API，做為後端資料對接用。
 
 ## TODO List
 1. ✅ 編輯使用者資料
 2. ✅ 審核申請的使用者與停權/復權帳號
-3. ❌ 編輯 API 資料
-4. ❌ API 清單
+3. ▶️ 編輯 API 資料
+4. ▶️ API 清單
 5. ❌ 編輯使用者權限
 6. 還有很多...
 
@@ -51,10 +51,15 @@
 
 ## 使用
 1. 後臺功能
-    - 直接使用瀏覽器存取 `http://yourhostingurl/backend` 即可
+    - 直接使用瀏覽器存取 `http://yourhostingurl/admin` 即可
+    - 第一次安裝後如需登入管理員帳號請使用下面的帳號，並請登入後自行修改密碼
+    ```
+    使用者名稱: administrator
+    密碼: 123
+    ```
 2. API 存取
     - 請加入以下列出的所有標頭
-    ```
+    ```HTTP
     Accept: application/json
     Content-Type: application/json
     X-Requested-With: XMLHttpRequest

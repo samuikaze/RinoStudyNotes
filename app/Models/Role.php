@@ -11,6 +11,8 @@ class Role extends Model
 
     /**
      * 讀取的表格名稱
+     *
+     * @var string
      */
     protected $table = 'roles';
 

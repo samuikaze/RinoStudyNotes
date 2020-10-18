@@ -38,6 +38,17 @@ class DatabaseSeeder extends Seeder
                     ]
                 ],
             ], [
+                'table' => 'skill_types',
+                'data' => [
+                    ['name' => '必殺技', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '技能 1', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '技能 2', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => 'EX 技能', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '必殺技 +', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '專武強化技能 1', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => 'EX 技能 +', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                ],
+            ], [
                 'table' => 'users',
                 'data' => [
                     [
