@@ -38,6 +38,17 @@ class DatabaseSeeder extends Seeder
                     ]
                 ],
             ], [
+                'table' => 'skill_types',
+                'data' => [
+                    ['name' => '必殺技', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '技能 1', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '技能 2', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => 'EX 技能', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '必殺技 +', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => '專武強化技能 1', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                    ['name' => 'EX 技能 +', 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()],
+                ],
+            ], [
                 'table' => 'users',
                 'data' => [
                     [
@@ -73,6 +84,11 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['完成審核頁面全部功能'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-17 03:15:00'),
                         'updated_at' => Carbon::parse('2020-10-17 03:15:00'),
+                    ], [
+                        'version_id' => '0.0.5',
+                        'content' => json_encode(['完成新增角色資料功能', '修正部分登入系統行為', '修正驗證登入失敗時重新導向位址不正確問題'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-19 02:30:00'),
+                        'updated_at' => Carbon::parse('2020-10-19 02:30:00'),
                     ],
                 ],
             ],

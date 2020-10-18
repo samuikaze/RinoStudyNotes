@@ -8,15 +8,20 @@
             new Vue({
                 el: '#auth',
                 data: {
-                    lusername: '',
-                    lpassword: '',
-                    rusername: '',
-                    rpassword: '',
-                    pw_conf: '',
-                    rnickname: '',
+                    login: {
+                        username: '',
+                        password: ''
+                    },
+                    register: {
+                        username: '',
+                        password: '',
+                        pswdconf: '',
+                        nickname: '',
+                    },
                     loading: false,
                     msg: '',
                     msgType: 'info',
+                    adminConfirm: false,
                 },
                 methods: {
                     showMsg: function (type, msg) {
@@ -32,17 +37,22 @@
                         }
                     },
                     fireLogin: function (event) {
-                        if (this.lusername.length > 0 && this.lpassword.length > 0) {
+                        if (this.login.username.length > 0 && this.login.password.length > 0) {
                             event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;登入中';
                             event.target.disabled = true;
                             axios.post('/admin/login', {
-                                username: this.lusername,
-                                password: this.lpassword,
+                                username: this.login.username,
+                                password: this.login.password,
                             })
                                 .then((res) => {
                                     event.target.innerHTML = '跳轉中...';
                                     Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
-                                    window.location.href = '/admin';
+                                    if (res.data.data.length < 1) {
+                                        window.location.href = '/admin';
+                                    } else {
+                                        this.showMsg('warning', res.data.data);
+                                        this.adminConfirm = true;
+                                    }
                                 })
                                 .catch((errors) => {
                                     event.target.innerHTML = '登入';
@@ -50,7 +60,7 @@
                                     this.showMsg('error', this.getErrorMsg(errors));
                                 });
                         } else {
-                            if (this.lusername.length < 1) {
+                            if (this.login.username.length < 1) {
                                 this.showMsg('error', '使用者名稱欄位不可為空');
                             } else {
                                 this.showMsg('error', '密碼欄位不可為空');
@@ -58,17 +68,25 @@
                         }
                     },
                     fireRegister: function (event) {
-                        if (this.rpassword != this.pw_conf) {
+                        if (this.register.password != this.register.pswdconf) {
                             this.showMsg('error', '兩次輸入的密碼不相同，請重新輸入');
+                            return ;
+                        }
+                        if (
+                            this.register.username.length == 0
+                            || this.register.password.length == 0
+                            || this.register.pswdconf.length == 0
+                        ) {
+                            this.showMsg('error', '請確實填寫申請的欄位！');
                             return ;
                         }
                         event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;讀取中';
                         event.target.disabled = true;
                         axios.post('/admin/register', {
-                            username: this.rusername,
-                            password: this.rpassword,
-                            password_confirmation: this.pw_conf, 
-                            nickname: (this.rnickname.length > 0) ? this.rnickname : null
+                            username: this.register.username,
+                            password: this.register.password,
+                            password_confirmation: this.register.pswdconf,
+                            nickname: (this.register.nickname.length > 0) ? this.register.nickname : null
                         })
                             .then((res) => {
                                 Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
@@ -135,11 +153,11 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="lUsername">使用者名稱</label>
-                            <input type="text" class="form-control" id="lUsername" v-model="lusername" placeholder="請輸入使用者名稱" required>
+                            <input type="text" class="form-control" id="lUsername" v-model="login.username" placeholder="請輸入使用者名稱" required>
                         </div>
                         <div class="form-group">
                             <label for="lPassword">密碼</label>
-                            <input type="password" class="form-control" id="lPassword" v-model="lpassword" placeholder="請輸入密碼" required>
+                            <input type="password" class="form-control" id="lPassword" v-model="login.password" placeholder="請輸入密碼" required>
                         </div>
                         <div class="text-center">
                             <button type="button" v-on:click="fireLogin($event)" class="btn btn-primary">登入</button>
@@ -150,19 +168,19 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="rUsername">使用者名稱</label>
-                            <input type="text" class="form-control" id="rUsername" v-model="rusername" placeholder="請輸入使用者名稱" required>
+                            <input type="text" class="form-control" id="rUsername" v-model="register.username" placeholder="請輸入使用者名稱" required>
                         </div>
                         <div class="form-group">
                             <label for="rPassword">密碼</label>
-                            <input type="password" class="form-control" id="rPassword" v-model="rpassword" placeholder="請輸入密碼" required>
+                            <input type="password" class="form-control" id="rPassword" v-model="register.password" placeholder="請輸入密碼" required>
                         </div>
                         <div class="form-group">
                             <label for="rPasswordConf">確認密碼</label>
-                            <input type="password" class="form-control" id="rPasswordConf" v-model="pw_conf" placeholder="請再次輸入密碼" required>
+                            <input type="password" class="form-control" id="rPasswordConf" v-model="register.pswdconf" placeholder="請再次輸入密碼" required>
                         </div>
                         <div class="form-group">
                             <label for="rNickname">暱稱</label>
-                            <input type="text" class="form-control" id="rNickname" v-model="rnickname" placeholder="請輸入暱稱，留空會使用使用者名稱當作暱稱">
+                            <input type="text" class="form-control" id="rNickname" v-model="register.nickname" placeholder="請輸入暱稱，留空會使用使用者名稱當作暱稱">
                         </div>
                         <div class="text-center">
                             <button type="button" v-on:click="fireRegister($event)" class="btn btn-primary">申請</button>
@@ -184,7 +202,15 @@
                         <p v-html="msg"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button type="button" v-if="!adminConfirm" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                        <button
+                            type="button"
+                            v-if="adminConfirm"
+                            class="btn btn-success"
+                            onclick="this.disabled = true; this.innerHTML = '跳轉中...'; window.location.href = '/admin';"
+                        >
+                            跳轉至管理首頁
+                        </button>
                     </div>
                 </div>
             </div>

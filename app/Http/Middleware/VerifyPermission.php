@@ -40,7 +40,7 @@ class VerifyPermission
         // 如果是 API
         if ($request->wantsJson() || $request->isJson()) {
             // 取得可存取的權限
-            if (empty($accessible = Role::where('id', $request->input('user.role_of'))->first())) {
+            if (empty($accessible = Role::where('id', Auth::user()->role_of)->first())) {
                 return $this->response->setError('Forbidden')->setCode($this->response::FORBIDDEN)->json();
             }
 

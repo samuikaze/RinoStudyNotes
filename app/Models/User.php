@@ -43,4 +43,14 @@ class User extends Authenticatable
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * 關聯 tokens 資料表
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function token()
+    {
+        return $this->hasMany(Token::class, 'user_of', 'id');
+    }
 }

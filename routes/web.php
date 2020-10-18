@@ -28,12 +28,13 @@ Route::group(['prefix' => 'admin'], function () {
     Route::group(['middleware' => 'verify.backend'], function () {
         // 公共路由，不會驗證存取權限
         Route::group(['middleware' => 'verify.permission:public'], function () {
-            Route::get('/', 'Backend\ViewController@index');
+            Route::get('/', 'Backend\ViewController@index')->name('admin.index');
         });
 
         // 有權才可檢視的路由
         Route::group(['middleware' => 'verify.permission:view'], function () {
             Route::get('/verify', 'Backend\ViewController@verifyEditableApply');
+            Route::get('/character', 'Backend\ViewController@characterList');
         });
     });
 
@@ -49,10 +50,10 @@ Route::post('/admin/register', 'Backend\AuthenticationController@register');
 Route::get('/admin/logout', 'Backend\AuthenticationController@logout')->name('logout');
 Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
     Route::group(['prefix' => 'v1'], function () {
-        // 取得使用者資料
-        Route::get('/user', 'Backend\AuthenticationController@userInfo');
         // 會驗登入的路由
         Route::group(['middleware' => 'verify.backend'], function () {
+            // 取得使用者資料
+            Route::get('/user', 'Backend\AuthenticationController@userInfo');
             // 編輯使用者資料
             Route::patch('/user', 'Backend\AuthenticationController@editProfile');
 
@@ -68,6 +69,14 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
                 Route::patch('/user/verify/verify', 'Backend\SystemConfigController@verifyUser');
                 // 停權或復權帳號
                 Route::patch('/user/verify/admin', 'Backend\SystemConfigController@adminAccount');
+                // 新增角色資料
+                Route::post('/character', 'Backend\CharacterController@addCharacter');
+                // 新增聲優資料
+                Route::post('/cv', 'Backend\CharacterController@addCV');
+                // 新增公會資料
+                Route::post('/guild', 'Backend\CharacterController@addGuild');
+                // 新增種族資料
+                Route::post('/race', 'Backend\CharacterController@addRace');
             });
         });
     });

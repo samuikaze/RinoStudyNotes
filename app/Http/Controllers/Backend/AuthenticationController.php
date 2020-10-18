@@ -17,6 +17,7 @@ class AuthenticationController extends Controller
 {
     use AuthenticatesUsers;
 
+    const LOGIN_ERROR = '帳號或密碼不正確';
     /**
      * 回應
      *
@@ -106,8 +107,10 @@ class AuthenticationController extends Controller
         $user = User::where('username', $request->input('username'))->first();
 
         if (empty($user)) {
-            return $this->response->setError('找不到該使用者名稱！')->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setError(self::LOGIN_ERROR)->setCode($this->response::BAD_REQUEST)->json();
         }
+
+        $user = $user->makeVisible(['password']);
 
         if ($user->status == 2) {
             return $this->response->setError('該帳號已被停權！')->setCode($this->response::BAD_REQUEST)->json();
@@ -116,12 +119,19 @@ class AuthenticationController extends Controller
         $auth = Auth::attempt($request->only('username', 'password'));
 
         if (!$auth) {
-            return $this->response->setError('密碼不正確')->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setError(self::LOGIN_ERROR)->setCode($this->response::BAD_REQUEST)->json();
         }
 
         $token = $this->token->generateToken($user->id);
 
         session()->put('user-token', $token);
+
+        if ($user->username == 'administrator' && Hash::check('123', $user->password)) {
+            return $this->response
+                        ->setHeaders(['Authorization' => 'Bearer ' . $token])
+                        ->setData('看來是第一次使用系統，請記得將密碼更改為比較安全的密碼！')
+                        ->json();
+        }
 
         return $this->response->setHeaders(['Authorization' => 'Bearer ' . $token])->json();
     }
@@ -188,15 +198,16 @@ class AuthenticationController extends Controller
         }
 
         if ($request->has('newPswd')) {
-            $user = User::where('id', $request->input('user.id'))
-                        ->first()
-                        ->makeVisible(['password']);
+            $user = User::where('id', Auth::user()->id)
+                        ->first();
 
             if (empty($user)) {
                 return $this->response
                             ->setError('找不到此使用者名稱')
                             ->setCode(400)
                             ->json();
+            } else {
+                $user = $user->makeVisible(['password']);
             }
 
             if (! Hash::check($request->input('origPswd'), $user->password)) {
@@ -206,13 +217,13 @@ class AuthenticationController extends Controller
                             ->json();
             }
 
-            User::where('id', $request->input('user.id'))->update([
+            User::where('id', Auth::user()->id)->update([
                 'nickname' => $request->input('nickname'),
                 'password' => Hash::make($request->input('newPswd')),
             ]);
         }
 
-        User::where('id', $request->input('user.id'))->update([
+        User::where('id', Auth::user()->id)->update([
             'nickname' => $request->input('nickname'),
         ]);
 

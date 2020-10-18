@@ -39,8 +39,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     {
                       id: 1,
                       name: '角色資料',
-                      route: '/admin/api/character',
-                      disabled: true
+                      route: '/admin/character',
                     },
                   ]
                 }
@@ -94,9 +93,69 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         event.target.disabled = false;
                     });
             },
-            fireLogout: function () {
-                Cookies.remove('token');
-                window.location.href = '/admin/logout';
+            fireLogout: function (authFailed = false) {
+                if (authFailed) {
+                    if (window.location.pathname.search('/admin/authentication') < 0) {
+                        let modal = `
+                        <div class="modal fade" id="authFailedModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="authFailedModalLabel">資訊</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-center">
+                                            <span class="h5"><strong>登入期間已過期，請重新登入</strong></span><br>
+                                            <span id="redirector" class="text-secondary"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        document.body.innerHTML = modal;
+                    }
+                } else {
+                    if (window.location.pathname.search('/admin/authentication') < 0) {
+                        let modal = `
+                        <div class="modal fade" id="authFailedModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="authFailedModalLabel">資訊</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-center">
+                                            <span class="h5"><strong>登出中</strong></span><br>
+                                            <span id="redirector" class="text-secondary">系統正在將您重新導向至登入頁面...</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        document.body.innerHTML = modal;
+                    }
+                }
+                $('#authFailedModal').modal('show');
+                axios.get('/admin/logout').then((res) => {
+                    Cookies.remove('token');
+                }).catch((errors) => {
+                    alert(errors);
+                }).finally(() => {
+                    if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
+                        setTimeout(function () {
+                            document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
+                            window.location.href = '/admin/authentication';
+                        }, 2000);
+                    } else {
+                        if (!authFailed && window.location.pathname.search('/admin/authentication') < 0) {
+                            $('#authFailedModal').on('shown.bs.modal', function () {
+                                window.location.href = '/admin/authentication';
+                            });
+                        }
+                    }
+                });
             }
         },
         created: function () {
@@ -112,13 +171,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     this.user.nickname = (this.user.nickname == null) ? this.user.username : this.user.nickname;
                 })
                 .catch((errors) => {
-                    console.log(errors);
+                    if (errors.response.status === 401) {
+                        this.fireLogout(true);
+                    }
+                    this.user = [];
                 })
                 .finally(() => {
                     this.loading = false;
-                    if (this.user.length === 0 && window.location.pathname.search('/admin/authentication') < 0) {
-                        window.location.href = '/admin/authentication';
-                    }
                     Vue.nextTick(() => {
                         $('#user-popover').popover({
                             placement: 'bottom',

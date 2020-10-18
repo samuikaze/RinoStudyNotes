@@ -53,7 +53,9 @@
                             type: this.verifyData.type,
                         }).then((res) => {
                             let index = this.verifying.indexOf(this.verifying.filter(item => item.id == this.verifyData.userID)[0]);
+
                             if (index > -1) {
+                                this.verified.push(this.verifying[index]);
                                 this.verifying.splice(index, 1);
                             }
                             $('#verifyConfirmModal').modal('hide');

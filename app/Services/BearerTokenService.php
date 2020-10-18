@@ -76,7 +76,7 @@ class BearerTokenService
 
         $plainToken = decrypt($token);
 
-        $token = Token::where('token', $plainToken)->first();
+        $token = Token::where('token', $plainToken)->where('expire_at', '>=', Carbon::now())->first();
 
         if (empty($token)) {
             return false;
@@ -90,11 +90,15 @@ class BearerTokenService
     /**
      * 刪除權杖
      *
-     * @param string $token 由前端傳入的權杖
+     * @param string|null $token 由前端傳入的權杖
      * @return bool
      */
-    public function removeToken(string $token)
+    public function removeToken(string $token = null)
     {
+        if (is_null($token)) {
+            return false;
+        }
+
         $plainToken = decrypt($token);
 
         Token::where('token', $plainToken)->delete();

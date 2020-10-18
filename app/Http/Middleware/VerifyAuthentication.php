@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use App\Services\BearerTokenService;
 use App\Services\ResponseService;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,26 +62,28 @@ class VerifyAuthentication
                 return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
             }
 
-            $user = User::where('id', $verify)->first()->toArray();
+            $user = User::where('id', $verify)->first();
 
-            if ($user['status'] == 2) {
+            if (empty($user) || $user->status == 2) {
+                Auth::logoutCurrentDevice();
+                session()->regenerate();
                 return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
             }
-
-            $request->merge(['user' => $user]);
 
             return $next($request);
         }
         // 如果是瀏覽器
         else {
             if (Auth::check()) {
-                // 沒被停權
-                if (Auth::user()->status != 2) {
-                    return $next($request);
+                // 被停權
+                if (Auth::user()->status == 2) {
+                    return $this->response->setRedirectTarget(route('logout'))->redirect();
                 }
+
+                return $next($request);
             }
 
-            return $this->response->setRedirectTarget(route('logout'))->redirect();
+            return $this->response->setRedirectTarget(route('login'))->redirect();
         }
     }
 }

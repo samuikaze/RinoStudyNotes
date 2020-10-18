@@ -17,7 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'v1'], function () {
     // 公共 API
     Route::group(['as' => 'publicapi'], function () {
-        Route::get('/test', 'Api\CharacterController@test');
+        Route::get('/characters', 'Api\CharacterController@characterList');
+        Route::get('/character', 'Api\CharacterController@characterInfo');
+        Route::get('/guilds', 'Api\CharacterController@guildList');
+        Route::get('/skill/types', 'Api\CharacterController@skillTypeList');
+        Route::get('/cvs', 'Api\CharacterController@CVList');
+        Route::get('/races', 'Api\CharacterController@raceList');
     });
 
     // 前端網頁用路由
