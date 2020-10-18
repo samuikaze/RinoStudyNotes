@@ -150,7 +150,7 @@ class AuthenticationController extends Controller
         Auth::logoutCurrentDevice();
         session()->regenerate();
 
-        return redirect(route('login'));
+        return $this->response->json();
     }
 
     /**
