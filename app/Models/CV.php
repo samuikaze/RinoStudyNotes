@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CV extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * 讀取的表格名稱
@@ -33,5 +34,6 @@ class CV extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 }

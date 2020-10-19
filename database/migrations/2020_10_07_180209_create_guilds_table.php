@@ -17,6 +17,7 @@ class CreateGuildsTable extends Migration
             $table->id();
             $table->string('name', 10)->comment('公會名稱');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

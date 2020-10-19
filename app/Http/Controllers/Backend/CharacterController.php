@@ -9,6 +9,7 @@ use App\Models\Guild;
 use App\Models\Nickname;
 use App\Models\Race;
 use App\Models\Skill;
+use App\Models\SkillType;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -105,6 +106,54 @@ class CharacterController extends Controller
         Skill::insert($skills);
 
         return $this->response->setData($id)->json();
+    }
+
+    /**
+     * 取得公會清單
+     *
+     * @return \Illuminate\Http\JsonResponse 所有公會清單
+     */
+    public function guildList()
+    {
+        $guilds = Guild::select('id', 'name', 'deleted_at')->withTrashed()->get();
+
+        return $this->response->setData($guilds)->json();
+    }
+
+    /**
+     * 取得所有技能種類
+     *
+     * @return \Illuminate\Http\JsonResponse 所有公會清單
+     */
+    public function skillTypeList()
+    {
+        $skillTypes = SkillType::select('id', 'name', 'deleted_at')->withTrashed()->get();
+
+        return $this->response->setData($skillTypes)->json();
+    }
+
+    /**
+     * 取得所有聲優清單
+     *
+     * @return \Illuminate\Http\JsonResponse 所有聲優清單
+     */
+    public function CVList()
+    {
+        $cvs = CV::select('id', 'name', 'deleted_at')->withTrashed()->get();
+
+        return $this->response->setData($cvs)->json();
+    }
+
+    /**
+     * 取得所有種族清單
+     *
+     * @return
+     */
+    public function raceList()
+    {
+        $races = Race::select('id', 'name', 'deleted_at')->withTrashed()->get();
+
+        return $this->response->setData($races)->json();
     }
 
     /**

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SkillType extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * 讀取的表格名稱

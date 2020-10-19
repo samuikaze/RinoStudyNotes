@@ -33,8 +33,12 @@ Route::group(['prefix' => 'admin'], function () {
 
         // 有權才可檢視的路由
         Route::group(['middleware' => 'verify.permission:view'], function () {
+            // 審核
             Route::get('/verify', 'Backend\ViewController@verifyEditableApply');
+            // 角色資料管理
             Route::get('/character', 'Backend\ViewController@characterList');
+            // 角色關聯的資料管理
+            Route::get('/character/related', 'Backend\ViewController@characterRelatedData');
         });
     });
 
@@ -77,6 +81,8 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
                 Route::post('/guild', 'Backend\CharacterController@addGuild');
                 // 新增種族資料
                 Route::post('/race', 'Backend\CharacterController@addRace');
+                // 新增技能種類資料
+                Route::post('/skill/type', 'Backend\CharacterController@addSkillType');
             });
         });
     });

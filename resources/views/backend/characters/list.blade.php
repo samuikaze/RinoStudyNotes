@@ -331,7 +331,20 @@
                         <td class="align-middle">@{{ i + 1 }}</td>
                         <td class="align-middle">@{{ chara.tw_name }}</td>
                         <td class="align-middle">@{{ chara.jp_name }}</td>
-                        <td class="align-middle">123</td>
+                        <td class="align-middle">
+                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                </svg>&nbsp;&nbsp;
+                                編輯
+                            </button>
+                            <button type="button" class="btn btn-dark" disabled>
+                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
+                                </svg>&nbsp;&nbsp;
+                                刪除
+                            </button>
+                        </td>
                     </tr>
                 </template>
                 <template v-else>
@@ -392,6 +405,20 @@
                                 <select class="form-control" id="cv" v-model="characterInfo.cv_of">
                                     <option v-for="cv in cvs" :value="cv.id">@{{ cv.name }}</option>
                                 </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="chara-s_image_url">角色小圖網址</label>
+                                    <input type="text" class="form-control" v-model.trim="characterInfo.s_image_url" id="chara-s_image_url" placeholder="請輸入角色小圖網址" disabled>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="chara-f_image_url">角色大圖網址</label>
+                                    <input type="text" class="form-control" v-model.trim="characterInfo.f_image_url" id="chara-f_image_url" placeholder="請輸入角色大圖網址" disabled>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="chara-t_image_url">角色縮圖網址</label>
+                                    <input type="text" class="form-control" v-model.trim="characterInfo.t_image_url" id="chara-t_image_url" placeholder="請輸入角色縮圖網址" disabled>
+                                </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-3">
@@ -459,13 +486,15 @@
                                     <label :for="`skillType-${st.id}`">@{{ `${st.name}名稱` }}</label>
                                     <input type="text" class="form-control" v-model.trim="characterInfo.skills[i].skill_name" :id="`skillType-${st.id}`" :placeholder="`請輸入${st.name}名稱`">
                                 </div>
-                                <div class="form-group">
-                                    <label :for="`skillType-${st.id}-description`">技能說明</label>
-                                    <textarea class="form-control" v-model.trim="characterInfo.skills[i].description" :id="`skillType-${st.id}-description`" rows="3" placeholder="請輸入技能說明"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label :for="`skillType-${st.id}-effect`">技能效果</label>
-                                    <textarea class="form-control" v-model.trim="characterInfo.skills[i].effect" :id="`skillType-${st.id}-effect`" rows="3" placeholder="請輸入技能效果"></textarea>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label :for="`skillType-${st.id}-description`">技能說明</label>
+                                        <textarea class="form-control" v-model.trim="characterInfo.skills[i].description" :id="`skillType-${st.id}-description`" rows="3" placeholder="請輸入技能說明"></textarea>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label :for="`skillType-${st.id}-effect`">技能效果</label>
+                                        <textarea class="form-control" v-model.trim="characterInfo.skills[i].effect" :id="`skillType-${st.id}-effect`" rows="3" placeholder="請輸入技能效果"></textarea>
+                                    </div>
                                 </div>
                             </template>
                         </div>
