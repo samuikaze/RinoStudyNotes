@@ -119,6 +119,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
           name: '管理共同編輯者',
           route: '/admin/editors',
           disabled: true
+        }, {
+          id: 3,
+          name: '版本資料管理',
+          route: '/admin/versions',
+          disabled: true
         }],
         sysop: true
       }, {
@@ -128,6 +133,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
           id: 1,
           name: '角色資料',
           route: '/admin/character'
+        }, {
+          id: 2,
+          name: '角色雜項資料',
+          route: '/admin/character/related'
         }]
       }]
     },

@@ -63,10 +63,20 @@ class ViewController extends Controller
     /**
      * 角色一覽
      *
-     * @return
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
      */
     public function characterList()
     {
         return $this->response->setView('backend.characters.list')->view();
+    }
+
+    /**
+     * 角色關聯的資料管理
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function characterRelatedData()
+    {
+        return $this->response->setView('backend.characters.relate')->view();
     }
 }

@@ -17,6 +17,7 @@ class CreateSkillTypesTable extends Migration
             $table->id();
             $table->string('name', 10)->comment('類型名稱');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

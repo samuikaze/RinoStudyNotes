@@ -17,6 +17,7 @@ class CreateCvsTable extends Migration
             $table->id();
             $table->string('name', 7)->comment('聲優名稱');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
