@@ -196,25 +196,23 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         }
 
-        $('#authFailedModal').modal('show');
-        axios.get('/admin/logout').then(function (res) {
-          Cookies.remove('token');
-        })["catch"](function (errors) {
-          alert(errors);
-        })["finally"](function () {
-          if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-            setTimeout(function () {
-              document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
-              window.location.href = '/admin/authentication';
-            }, 2000);
-          } else {
-            if (!authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-              $('#authFailedModal').on('shown.bs.modal', function () {
+        $('#authFailedModal').on('shown.bs.modal', function () {
+          axios.get('/admin/logout').then(function (res) {
+            Cookies.remove('token');
+
+            if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
+              setTimeout(function () {
+                document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
                 window.location.href = '/admin/authentication';
-              });
+              }, 2000);
+            } else {
+              window.location.href = '/admin/authentication';
             }
-          }
+          })["catch"](function (errors) {
+            alert(errors);
+          });
         });
+        $('#authFailedModal').modal('show');
       }
     },
     created: function created() {

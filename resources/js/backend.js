@@ -137,25 +137,22 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         document.body.innerHTML = modal;
                     }
                 }
-                $('#authFailedModal').modal('show');
-                axios.get('/admin/logout').then((res) => {
-                    Cookies.remove('token');
-                }).catch((errors) => {
-                    alert(errors);
-                }).finally(() => {
-                    if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-                        setTimeout(function () {
-                            document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
-                            window.location.href = '/admin/authentication';
-                        }, 2000);
-                    } else {
-                        if (!authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-                            $('#authFailedModal').on('shown.bs.modal', function () {
+                $('#authFailedModal').on('shown.bs.modal', function () {
+                    axios.get('/admin/logout').then((res) => {
+                        Cookies.remove('token');
+                        if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
+                            setTimeout(function () {
+                                document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
                                 window.location.href = '/admin/authentication';
-                            });
+                            }, 2000);
+                        } else {
+                            window.location.href = '/admin/authentication';
                         }
-                    }
+                    }).catch((errors) => {
+                        alert(errors);
+                    });
                 });
+                $('#authFailedModal').modal('show');
             }
         },
         created: function () {
