@@ -1,0 +1,84 @@
+@import url(https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100%3b300%3b400%3b500%3b700%3b900&display=swap);@import url(https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100%3b0,200%3b0,300%3b0,400%3b0,500%3b0,600%3b0,700%3b1,100%3b1,200%3b1,300%3b1,400%3b1,500%3b1,600%3b1,700&display=swap);* {
+  font-family: "Noto Sans TC";
+}
+
+.text-mono {
+  font-family: "Roboto Mono", monospace;
+}
+
+.text-mono * {
+  font-family: "Roboto Mono", monospace;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  margin: 0 0 100px 0;
+  padding-bottom: 25px;
+}
+
+#footer {
+  background-color: orange;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100px;
+  width: 100%;
+  overflow: hidden;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.popover {
+  width: 15rem;
+}
+
+.fixed-body {
+  height: 30rem;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.form-hide {
+  display: none;
+  z-index: 500;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+#verify-table th:nth-child(1),
+#verified-table th:nth-child(1),
+#character-table th:nth-child(1) {
+  width: 5%;
+}
+
+#verify-table th:nth-child(2),
+#verified-table th:nth-child(2),
+#character-table th:nth-child(2) {
+  width: 40%;
+}
+
+#verify-table th:nth-child(3),
+#verified-table th:nth-child(3),
+#character-table th:nth-child(3) {
+  width: 40%;
+}
+
+.related-table th:nth-child(1) {
+  width: 5%;
+}
+
+.related-table th:nth-child(2) {
+  width: 80%;
+}
+

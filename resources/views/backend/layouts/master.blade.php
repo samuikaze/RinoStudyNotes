@@ -8,7 +8,7 @@
     <script src="{{ mix('js/app.js') }}"></script>
     <script src="/js/backend.js"></script>
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="/css/custom.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
 </head>
 <body>
     @include('backend.layouts.header')
