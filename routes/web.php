@@ -75,14 +75,10 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
                 Route::patch('/user/verify/admin', 'Backend\SystemConfigController@adminAccount');
                 // 新增角色資料
                 Route::post('/character', 'Backend\CharacterController@addCharacter');
-                // 新增聲優資料
-                Route::post('/cv', 'Backend\CharacterController@addCV');
-                // 新增公會資料
-                Route::post('/guild', 'Backend\CharacterController@addGuild');
-                // 新增種族資料
-                Route::post('/race', 'Backend\CharacterController@addRace');
-                // 新增技能種類資料
-                Route::post('/skill/type', 'Backend\CharacterController@addSkillType');
+                // 編輯聲優、公會、種族、技能種類資料
+                Route::post('/character/{data?}', 'Backend\CharacterController@addRelatedData');
+                // 編輯聲優、公會、種族、技能種類資料
+                Route::patch('/character/{data?}', 'Backend\CharacterController@editRelatedData');
             });
         });
     });

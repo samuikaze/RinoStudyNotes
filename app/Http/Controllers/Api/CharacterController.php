@@ -78,30 +78,36 @@ class CharacterController extends Controller
 
         $key = array_keys($condition)[0];
 
-        if (in_array($key, ['id', 'nickname', 'tw_name', 'jp_name'])) {
+        if (in_array($key, ['id', 'tw_name', 'jp_name'])) {
             $character = Character::select('id', 'guild_of', 'cv_of', 'race_of', 'tw_name', 'jp_name', 'description', 'ages', 'height', 'weight', 'blood_type', 'likes', 'birthday')
                                   ->where($key, $condition[$key])
-                                  ->with(
-                                      ['guild' => function ($q) {
+                                  ->with([
+                                      'guild' => function ($q) {
                                           $q->select('id', 'name');
-                                      }, 'cv' => function ($q) {
+                                      },
+                                      'cv' => function ($q) {
                                           $q->select('id', 'name');
-                                      }, 'race' => function ($q) {
+                                      },
+                                      'race' => function ($q) {
                                           $q->select('id', 'name');
-                                      }]
-                                  )
+                                      },
+                                      'nicknames' => function ($q) {
+                                          $q->select('id', 'character_of', 'nickname');
+                                      }
+                                  ])
                                   ->first();
-
-            $character->likes = json_decode($character->likes);
+            $character->likes = implode("\n", json_decode($character->likes));
             $character->guild_of = $character->guild->name;
             $character->race_of = $character->race->name;
             $character->cv_of = $character->cv->name;
             $character = (empty($character)) ? [] : $character->toArray();
+            $character['nicknames'] = implode("\n", collect($character['nicknames'])->pluck('nickname')->toArray());
             unset($character['guild'], $character['race'], $character['cv']);
         } else {
             $character = [];
         }
 
+        // return $character;
         dd($character);
     }
 
@@ -144,7 +150,7 @@ class CharacterController extends Controller
     /**
      * 取得所有種族清單
      *
-     * @return
+     * @return \Illuminate\Http\JsonResponse 所有種族清單
      */
     public function raceList()
     {

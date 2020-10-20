@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
 
         axios.post('/api/v1/user', data).then(function (res) {
-          _this.user = res.data.data;
+          _this.user = res.data;
           _this.eUser = _.cloneDeep(_this.user);
           _this.user.nickname = _this.user.nickname == null ? _this.user.username : _this.user.nickname;
           _this.eOrigPassword = '';
@@ -177,8 +177,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           _this.ePasswordConf = '';
 
           if (changePW) {
-            window.location.href = '/admin/logout';
-            event.target.innerHTML = '登出中';
+            _this.fireLogout();
           } else {
             event.target.innerHTML = '儲存';
             event.target.disabled = false;
@@ -213,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               setTimeout(function () {
                 document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
                 window.location.href = '/admin/authentication';
-              }, 2000);
+              }, 1000);
             } else {
               window.location.href = '/admin/authentication';
             }
@@ -234,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
 
       axios.get('/api/v1/user').then(function (res) {
-        _this2.user = res.data.data;
+        _this2.user = res.data;
         _this2.eUser = _.cloneDeep(_this2.user);
         _this2.user.nickname = _this2.user.nickname == null ? _this2.user.username : _this2.user.nickname;
       })["catch"](function (errors) {

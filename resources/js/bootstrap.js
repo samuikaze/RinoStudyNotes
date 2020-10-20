@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         created: function () {
             axios.get('/api/v1/version')
                 .then((res) => {
-                    this.versionId = res.data.data;
+                    this.versionId = res.data;
                 })
                 .catch((errors) => {
                     console.log(errors);

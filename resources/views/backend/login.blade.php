@@ -47,10 +47,10 @@
                                 .then((res) => {
                                     event.target.innerHTML = '跳轉中...';
                                     Cookies.set('token', res.headers.authorization.replace('Bearer ', '').trim(), {sameSite: 'lax'});
-                                    if (res.data.data.length < 1) {
+                                    if (res.data.length < 1) {
                                         window.location.href = '/admin';
                                     } else {
-                                        this.showMsg('warning', res.data.data);
+                                        this.showMsg('warning', res.data);
                                         this.adminConfirm = true;
                                     }
                                 })
@@ -157,10 +157,10 @@
                         </div>
                         <div class="form-group">
                             <label for="lPassword">密碼</label>
-                            <input type="password" class="form-control" id="lPassword" v-model="login.password" placeholder="請輸入密碼" required>
+                            <input type="password" class="form-control" id="lPassword" v-on:keyup.enter="fireLogin($event)" v-model="login.password" placeholder="請輸入密碼" required>
                         </div>
                         <div class="text-center">
-                            <button type="button" v-on:click="fireLogin($event)" class="btn btn-primary">登入</button>
+                            <button type="button" v-on:keyup.enter="fireLogin($event)" v-on:click="fireLogin($event)" class="btn btn-primary">登入</button>
                         </div>
                     </div>
                 </div>
