@@ -97,11 +97,14 @@ class CharacterController extends Controller
         Nickname::insert($nicknames);
 
         $skills = collect($skills)->map(function ($item) use ($id, $created_at, $updated_at) {
+            if (empty($item['description']) || empty($skill_name)) {
+                return null;
+            }
             $item['character_of'] = $id;
             $item['created_at'] = $created_at;
             $item['updated_at'] = $updated_at;
             return $item;
-        })->toArray();
+        })->filter()->toArray();
 
         Skill::insert($skills);
 
@@ -147,7 +150,7 @@ class CharacterController extends Controller
     /**
      * 取得所有種族清單
      *
-     * @return
+     * @return \Illuminate\Http\JsonResponse 所有種族清單
      */
     public function raceList()
     {
@@ -157,107 +160,162 @@ class CharacterController extends Controller
     }
 
     /**
-     * 新增聲優資料
+     * 新增聲優、公會、種族、技能種類資料
      *
      * @param \Illuminate\Http\Request $request HTTP 請求
-     * @return \Illuminate\Http\JsonResponse 200 回應或錯誤訊息
+     * @param string|null $data [cv|guild|race|skilltype]
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function addCV(Request $request)
+    public function addRelatedData(Request $request, string $data = null)
     {
+        $validator = Validator::make(['data' => $data], [
+            'data' => ['required', 'string', 'in:cv,guild,race,skilltype'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->setCode($this->response::NOT_FOUND)->json();
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string'],
         ]);
 
-        if ($validator->fails()) {
-            return $this->response
-                        ->setError('聲優的名稱未填或格式不正確')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
+        switch ($data) {
+            case 'cv':
+                // 新增聲優資料
+                if ($validator->fails()) {
+                    return $this->response
+                                ->setError('聲優的名稱未填或格式不正確')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $cv = CV::where('name', $request->input('name'))->count();
+
+                if ($cv > 0) {
+                    return $this->response
+                                ->setError('該聲優已經存在！')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $id = CV::create([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'guild':
+                // 新增公會資料
+                if ($validator->fails()) {
+                    return $this->response
+                                ->setError('公會的名稱未填或格式不正確')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $guild = Guild::where('name', $request->input('name'))->count();
+
+                if ($guild > 0) {
+                    return $this->response
+                                ->setError('該公會已經存在！')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $id = Guild::create([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'race':
+                // 新增種族資料
+                if ($validator->fails()) {
+                    return $this->response
+                                ->setError('種族的名稱未填或格式不正確')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $guild = Race::where('name', $request->input('name'))->count();
+
+                if ($guild > 0) {
+                    return $this->response
+                                ->setError('該種族已經存在！')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $id = Race::create([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'skilltype':
+                // 新增技能種類資料
+                if ($validator->fails()) {
+                    return $this->response
+                                ->setError('技能的種類名稱未填或格式不正確')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $guild = SkillType::where('name', $request->input('name'))->count();
+
+                if ($guild > 0) {
+                    return $this->response
+                                ->setError('該技能種類已經存在！')
+                                ->setCode($this->response::BAD_REQUEST)
+                                ->json();
+                }
+
+                $id = SkillType::create([
+                    'name' => $request->input('name'),
+                ]);
+                break;
         }
-
-        $cv = CV::where('name', $request->input('name'))->count();
-
-        if ($cv > 0) {
-            return $this->response
-                        ->setError('該聲優已經存在！')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
-        }
-
-        $id = CV::create([
-            'name' => $request->input('name'),
-        ]);
 
         return $this->response->setData($id->id)->json();
     }
 
     /**
-     * 新增公會資料
+     * 編輯聲優、公會、種族、技能種類資料
      *
      * @param \Illuminate\Http\Request $request HTTP 請求
-     * @return \Illuminate\Http\JsonResponse 200 回應或錯誤訊息
+     * @param string|null $data [cv|guild|race|skilltype]
      */
-    public function addGuild(Request $request)
+    public function editRelatedData(Request $request, string $data = null)
     {
+        $request->merge(['data' => $data]);
         $validator = Validator::make($request->all(), [
+            'data' => ['required', 'string', 'in:cv,guild,race,skilltype'],
+            'id' => ['required', 'numeric'],
             'name' => ['required', 'string'],
         ]);
 
         if ($validator->fails()) {
-            return $this->response
-                        ->setError('公會的名稱未填或格式不正確')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
+            return $this->response->setCode($this->response::NOT_FOUND)->json();
         }
 
-        $guild = Guild::where('name', $request->input('name'))->count();
-
-        if ($guild > 0) {
-            return $this->response
-                        ->setError('該公會已經存在！')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
+        switch ($data) {
+            case 'cv':
+                CV::where('id', $request->input('id'))->update([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'guild':
+                Guild::where('id', $request->input('id'))->update([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'race':
+                Race::where('id', $request->input('id'))->update([
+                    'name' => $request->input('name'),
+                ]);
+                break;
+            case 'skilltype':
+                SkillType::where('id', $request->input('id'))->update([
+                    'name' => $request->input('name'),
+                ]);
+                break;
         }
 
-        $id = Guild::create([
-            'name' => $request->input('name'),
-        ]);
-
-        return $this->response->setData($id->id)->json();
-    }
-
-    /**
-     * 新增種族資料
-     *
-     * @param \Illuminate\Http\Request $request HTTP 請求
-     * @return \Illuminate\Http\JsonResponse 200 回應或錯誤訊息
-     */
-    public function addRace(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string'],
-        ]);
-
-        if ($validator->fails()) {
-            return $this->response
-                        ->setError('種族的名稱未填或格式不正確')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
-        }
-
-        $guild = Race::where('name', $request->input('name'))->count();
-
-        if ($guild > 0) {
-            return $this->response
-                        ->setError('該種族已經存在！')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
-        }
-
-        $id = Race::create([
-            'name' => $request->input('name'),
-        ]);
-
-        return $this->response->setData($id->id)->json();
+        return $this->response->json();
     }
 }

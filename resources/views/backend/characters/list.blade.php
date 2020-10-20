@@ -53,6 +53,7 @@
                     loading: true,
                     saving: false,
                     subsaving: false,
+                    requestingData: false,
                     mainFormDisabled: false,
                     fadeDuration: 200,
                 },
@@ -105,6 +106,20 @@
                             skills: skills,
                         };
                     },
+                    showEditForm: function (id) {
+                        this.requestingData = true;
+                        $('#modifyCharacter').modal('show');
+
+                        axios.get('/api/v1/character', {params: {
+                            id: id,
+                        }}).then((res) => {
+                            this.characterInfo = res.data;
+                        }).catch((errors) => {
+                            this.showMsg('error', this.getErrorMsg(errors));
+                        }).finally(() => {
+                            this.requestingData = false;
+                        });
+                    },
                     fireAddCharacter: function () {
                         this.saving = true;
                         this.characterInfo.blood_type = (this.characterInfo.blood_type == null) ? null : this.characterInfo.blood_type.toString().toUpperCase();
@@ -112,7 +127,7 @@
                         this.characterInfo.likes = (this.characterInfo.likes == null) ? null : this.characterInfo.likes.trim().replace(/\r/g, '').split('\n');
                         axios.post('/api/v1/character', this.characterInfo).then((res) => {
                             this.characters.push({
-                                id: res.data.data,
+                                id: res.data,
                                 tw_name: this.characterInfo.tw_name,
                                 jp_name: this.characterInfo.jp_name
                             });
@@ -158,11 +173,11 @@
                     },
                     fireAddCV: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/cv', {
+                        axios.post('/api/v1/character/cv', {
                             name: this.createCV.name,
                         }).then((res) => {
-                            this.cvs.push({id: res.data.data, name: this.createCV.name});
-                            this.characterInfo.cv_of = res.data.data;
+                            this.cvs.push({id: res.data, name: this.createCV.name});
+                            this.characterInfo.cv_of = res.data;
                             this.createCV.name = '';
                             this.toggleForm('close');
                         }).catch((errors) => {
@@ -173,11 +188,11 @@
                     },
                     fireAddGuild: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/guild', {
+                        axios.post('/api/v1/character/guild', {
                             name: this.createGuild.name,
                         }).then((res) => {
-                            this.guilds.push({id: res.data.data, name: this.createGuild.name});
-                            this.characterInfo.guild_of = res.data.data;
+                            this.guilds.push({id: res.data, name: this.createGuild.name});
+                            this.characterInfo.guild_of = res.data;
                             this.createGuild.name = '';
                             this.toggleForm('close');
                         }).catch((errors) => {
@@ -188,11 +203,11 @@
                     },
                     fireAddRace: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/race', {
+                        axios.post('/api/v1/character/race', {
                             name: this.createRace.name,
                         }).then((res) => {
-                            this.races.push({id: res.data.data, name: this.createRace.name});
-                            this.characterInfo.race_of = res.data.data;
+                            this.races.push({id: res.data, name: this.createRace.name});
+                            this.characterInfo.race_of = res.data;
                             this.createRace.name = '';
                             this.toggleForm('close');
                         }).catch((errors) => {
@@ -215,13 +230,13 @@
                         result.forEach((res, i) => {
                             switch (i) {
                                 case 0:
-                                    this.characters = res.data.data;
+                                    this.characters = res.data;
                                     break;
                                 case 1:
-                                    this.guilds = this.guilds.concat(res.data.data);
+                                    this.guilds = this.guilds.concat(res.data);
                                     break;
                                 case 2:
-                                    this.skillTypes = res.data.data;
+                                    this.skillTypes = res.data;
 
                                     this.skillTypes.forEach((st) => {
                                         this.characterInfo.skills.push({
@@ -233,10 +248,10 @@
                                     });
                                     break;
                                 case 3:
-                                    this.cvs = this.cvs.concat(res.data.data);
+                                    this.cvs = this.cvs.concat(res.data);
                                     break;
                                 case 4:
-                                    this.races = this.races.concat(res.data.data);
+                                    this.races = this.races.concat(res.data);
                                     break;
                             }
                         });
@@ -332,7 +347,7 @@
                         <td class="align-middle">@{{ chara.tw_name }}</td>
                         <td class="align-middle">@{{ chara.jp_name }}</td>
                         <td class="align-middle">
-                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                            <button type="button" class="btn btn-outline-dark mr-2" v-on:click="showEditForm(chara.id)">
                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                 </svg>&nbsp;&nbsp;
@@ -376,128 +391,137 @@
                     </div>
                     <div class="modal-body">
                         {{-- 主表單 --}}
-                        <div id="main-form">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label for="chara-tw-name">中文名稱</label>
-                                    <input type="text" class="form-control" id="chara-tw-name" v-model.trim="characterInfo.tw_name" placeholder="請輸入角色中文名稱">
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label for="chara-jp-name">日文名稱</label>
-                                    <input type="text" class="form-control" id="chara-jp-name" v-model.trim="characterInfo.jp_name" placeholder="請輸入角色日文名稱">
-                                </div>
+                        <template v-if="requestingData">
+                            <div class="h4 text-dark text-center mt-2">
+                                <span class="spinner-border" role="status" aria-hidden="true"></span>&nbsp;
+                                <strong>資料讀取中...</strong>
                             </div>
-                            <div class="form-group">
-                                <label for="description">簡介</label>
-                                <textarea class="form-control" id="description" v-model.trim="characterInfo.description" rows="3" placeholder="請輸入角色簡介"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <div class="d-flex pb-2">
-                                    <div class="col-10 justify-content-start p-0">
-                                        <label for="cv">
-                                            聲優
-                                        </label>
-                                    </div>
-                                    <div class="col-2 justify-content-end text-right p-0">
-                                        <button type="button" v-on:click="toggleForm('cv')" class="btn btn-dark btn-sm">找不到聲優？</button>
-                                    </div>
-                                </div>
-                                <select class="form-control" id="cv" v-model="characterInfo.cv_of">
-                                    <option v-for="cv in cvs" :value="cv.id">@{{ cv.name }}</option>
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
-                                    <label for="chara-s_image_url">角色小圖網址</label>
-                                    <input type="text" class="form-control" v-model.trim="characterInfo.s_image_url" id="chara-s_image_url" placeholder="請輸入角色小圖網址" disabled>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="chara-f_image_url">角色大圖網址</label>
-                                    <input type="text" class="form-control" v-model.trim="characterInfo.f_image_url" id="chara-f_image_url" placeholder="請輸入角色大圖網址" disabled>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <label for="chara-t_image_url">角色縮圖網址</label>
-                                    <input type="text" class="form-control" v-model.trim="characterInfo.t_image_url" id="chara-t_image_url" placeholder="請輸入角色縮圖網址" disabled>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-3">
-                                    <label for="chara-age">年齡</label>
-                                    <input type="number" class="form-control" v-model.number="characterInfo.ages" id="chara-age" placeholder="請輸入角色年齡">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label for="chara-height">身高</label>
-                                    <input type="number" class="form-control" v-model.number="characterInfo.height" id="chara-height" placeholder="請輸入角色身高">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label for="chara-weight">體重</label>
-                                    <input type="number" class="form-control" v-model.number="characterInfo.weight" id="chara-weight" placeholder="請輸入角色體重">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label for="chara-blood_type">血型</label>
-                                    <input type="text" class="form-control" v-model="characterInfo.blood_type" id="chara-blood_type" placeholder="請輸入角色血型">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="d-flex pb-2">
-                                    <div class="col-10 justify-content-start p-0">
-                                        <label for="race">
-                                            種族
-                                        </label>
-                                    </div>
-                                    <div class="col-2 justify-content-end text-right p-0">
-                                        <button type="button" v-on:click="toggleForm('race')" class="btn btn-dark btn-sm">找不到種族？</button>
-                                    </div>
-                                </div>
-                                <select class="form-control" id="race" v-model="characterInfo.race_of">
-                                    <option v-for="race in races" :value="race.id">@{{ race.name }}</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="nicknames">別名</label>
-                                <textarea class="form-control" id="nicknames" v-model.trim="characterInfo.nicknames" rows="3" placeholder="請輸入角色別名，多個請用換行分開"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="likes">喜好</label>
-                                <textarea class="form-control" id="likes" v-model="characterInfo.likes" rows="3" placeholder="請輸入角色喜好，多個請用換行分開"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="birthday">生日</label>
-                                <input type="date" class="form-control" v-model="characterInfo.birthday" id="birthday" placeholder="請輸入角色別生日日期">
-                            </div>
-                            <div class="form-group">
-                                <div class="d-flex pb-2">
-                                    <div class="col-10 justify-content-start p-0">
-                                        <label for="guild">
-                                            所屬公會
-                                        </label>
-                                    </div>
-                                    <div class="col-2 justify-content-end text-right p-0">
-                                        <button type="button" v-on:click="toggleForm('guild')" class="btn btn-dark btn-sm">找不到公會？</button>
-                                    </div>
-                                </div>
-                                <select class="form-control" id="guild" v-model="characterInfo.guild_of">
-                                    <option v-for="guild in guilds" :value="guild.id">@{{ guild.name }}</option>
-                                </select>
-                            </div>
-                            <hr>
-                            <template v-for="(st, i) in skillTypes">
-                                <div class="form-group" :key="st.id">
-                                    <label :for="`skillType-${st.id}`">@{{ `${st.name}名稱` }}</label>
-                                    <input type="text" class="form-control" v-model.trim="characterInfo.skills[i].skill_name" :id="`skillType-${st.id}`" :placeholder="`請輸入${st.name}名稱`">
-                                </div>
+                        </template>
+                        <template v-else>
+                            <div id="main-form">
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
-                                        <label :for="`skillType-${st.id}-description`">技能說明</label>
-                                        <textarea class="form-control" v-model.trim="characterInfo.skills[i].description" :id="`skillType-${st.id}-description`" rows="3" placeholder="請輸入技能說明"></textarea>
+                                        <label for="chara-tw-name">中文名稱</label>
+                                        <input type="text" class="form-control" id="chara-tw-name" v-model.trim="characterInfo.tw_name" placeholder="請輸入角色中文名稱">
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <label :for="`skillType-${st.id}-effect`">技能效果</label>
-                                        <textarea class="form-control" v-model.trim="characterInfo.skills[i].effect" :id="`skillType-${st.id}-effect`" rows="3" placeholder="請輸入技能效果"></textarea>
+                                        <label for="chara-jp-name">日文名稱</label>
+                                        <input type="text" class="form-control" id="chara-jp-name" v-model.trim="characterInfo.jp_name" placeholder="請輸入角色日文名稱">
                                     </div>
                                 </div>
-                            </template>
-                        </div>
+                                <div class="form-group">
+                                    <label for="description">簡介</label>
+                                    <textarea class="form-control" id="description" v-model.trim="characterInfo.description" rows="3" placeholder="請輸入角色簡介"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <div class="d-flex pb-2">
+                                        <div class="col-10 justify-content-start p-0">
+                                            <label for="cv">
+                                                聲優
+                                            </label>
+                                        </div>
+                                        <div class="col-2 justify-content-end text-right p-0">
+                                            <button type="button" v-on:click="toggleForm('cv')" class="btn btn-dark btn-sm">找不到聲優？</button>
+                                        </div>
+                                    </div>
+                                    <select class="form-control" id="cv" v-model="characterInfo.cv_of">
+                                        <option v-for="cv in cvs" :value="cv.id">@{{ cv.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="chara-s_image_url">角色小圖網址</label>
+                                        <input type="text" class="form-control" v-model.trim="characterInfo.s_image_url" id="chara-s_image_url" placeholder="請輸入角色小圖網址" disabled>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="chara-f_image_url">角色大圖網址</label>
+                                        <input type="text" class="form-control" v-model.trim="characterInfo.f_image_url" id="chara-f_image_url" placeholder="請輸入角色大圖網址" disabled>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="chara-t_image_url">角色縮圖網址</label>
+                                        <input type="text" class="form-control" v-model.trim="characterInfo.t_image_url" id="chara-t_image_url" placeholder="請輸入角色縮圖網址" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-3">
+                                        <label for="chara-age">年齡</label>
+                                        <input type="number" class="form-control" v-model.number="characterInfo.ages" id="chara-age" placeholder="請輸入角色年齡">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="chara-height">身高</label>
+                                        <input type="number" class="form-control" v-model.number="characterInfo.height" id="chara-height" placeholder="請輸入角色身高">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="chara-weight">體重</label>
+                                        <input type="number" class="form-control" v-model.number="characterInfo.weight" id="chara-weight" placeholder="請輸入角色體重">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="chara-blood_type">血型</label>
+                                        <input type="text" class="form-control" v-model="characterInfo.blood_type" id="chara-blood_type" placeholder="請輸入角色血型">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="d-flex pb-2">
+                                        <div class="col-10 justify-content-start p-0">
+                                            <label for="race">
+                                                種族
+                                            </label>
+                                        </div>
+                                        <div class="col-2 justify-content-end text-right p-0">
+                                            <button type="button" v-on:click="toggleForm('race')" class="btn btn-dark btn-sm">找不到種族？</button>
+                                        </div>
+                                    </div>
+                                    <select class="form-control" id="race" v-model="characterInfo.race_of">
+                                        <option v-for="race in races" :value="race.id">@{{ race.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nicknames">別名</label>
+                                    <textarea class="form-control" id="nicknames" v-model.trim="characterInfo.nicknames" rows="3" placeholder="請輸入角色別名，多個請用換行分開"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="likes">喜好</label>
+                                    <textarea class="form-control" id="likes" v-model="characterInfo.likes" rows="3" placeholder="請輸入角色喜好，多個請用換行分開"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="birthday">生日</label>
+                                    <input type="date" class="form-control" v-model="characterInfo.birthday" id="birthday" placeholder="請輸入角色別生日日期">
+                                </div>
+                                <div class="form-group">
+                                    <div class="d-flex pb-2">
+                                        <div class="col-10 justify-content-start p-0">
+                                            <label for="guild">
+                                                所屬公會
+                                            </label>
+                                        </div>
+                                        <div class="col-2 justify-content-end text-right p-0">
+                                            <button type="button" v-on:click="toggleForm('guild')" class="btn btn-dark btn-sm">找不到公會？</button>
+                                        </div>
+                                    </div>
+                                    <select class="form-control" id="guild" v-model="characterInfo.guild_of">
+                                        <option v-for="guild in guilds" :value="guild.id">@{{ guild.name }}</option>
+                                    </select>
+                                </div>
+                                <hr>
+                                <p class="text-danger text-center"><strong>請注意，技能名稱或說明如有其中一項留空，則該技能不會被寫入資料庫！</strong></p>
+                                <template v-for="(st, i) in skillTypes">
+                                    <div class="form-group" :key="st.id">
+                                        <label :for="`skillType-${st.id}`">@{{ `${st.name}名稱` }}</label>
+                                        <input type="text" class="form-control" v-model.trim="characterInfo.skills[i].skill_name" :id="`skillType-${st.id}`" :placeholder="`請輸入${st.name}名稱`">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label :for="`skillType-${st.id}-description`">技能說明</label>
+                                            <textarea class="form-control" v-model.trim="characterInfo.skills[i].description" :id="`skillType-${st.id}-description`" rows="3" placeholder="請輸入技能說明"></textarea>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label :for="`skillType-${st.id}-effect`">技能效果</label>
+                                            <textarea class="form-control" v-model.trim="characterInfo.skills[i].effect" :id="`skillType-${st.id}-effect`" rows="3" placeholder="請輸入技能效果"></textarea>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
 
                         {{-- 新增聲優 --}}
                         <div id="add-cv" class="form-hide">

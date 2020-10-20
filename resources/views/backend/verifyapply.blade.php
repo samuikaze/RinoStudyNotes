@@ -92,8 +92,8 @@
                 },
                 mounted: function () {
                     axios.get('/api/v1/user/verify').then((res) => {
-                        this.verifying = res.data.data.verifying;
-                        this.verified = res.data.data.verified;
+                        this.verifying = res.data.verifying;
+                        this.verified = res.data.verified;
                     }).catch((errors) => {
                         this.showMsg('error', this.getErrorMsg(errors));
                     }).finally(() => {

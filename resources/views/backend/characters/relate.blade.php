@@ -41,56 +41,54 @@
                 changeSystemVar: function (key, value) {
                     this.systemVar[key] = value;
                 },
-                showModifyModal: function (type) {
+                showModifyModal: function (type, id = null) {
                     this.systemVar.edittype = type;
+
+                    if (type == 'edit') {
+                        if (id != null) {
+                            let index = this[`${this.systemVar.thisTab}s`].indexOf(this[`${this.systemVar.thisTab}s`].filter(item => item.id == id)[0]);
+
+                            if (index > -1) {
+                                this.modifyContent = _.cloneDeep(this[`${this.systemVar.thisTab}s`][index]);
+                            }
+                        } else {
+                            return;
+                        }
+                    }
                     $('#modifyItem').modal('show');
                 },
                 fireAddItem: function () {
                     this.systemVar.saving = true;
-                    let apiUri = '';
-                    switch (this.systemVar.thisTab) {
-                        case 'guild':
-                            apiUri = '/api/v1/guild';
-                            break;
-                        case 'cv':
-                            apiUri = '/api/v1/cv';
-                            break;
-                        case 'race':
-                            apiUri = '/api/v1/race';
-                            break;
-                        case 'skillType':
-                            apiUri = '/api/v1/skill/type';
-                            break;
-                        default:
-                            this.systemVar.saving = false;
-                            return;
+
+                    if (this.apiUri == null) {
+                        return ;
                     }
 
-                    axios.post(apiUri, {
+                    axios.post(this.apiUri, {
                         name: this.modifyContent.name,
                     }).then((res) => {
                         switch (this.systemVar.thisTab) {
                             case 'guild':
                                 this.guilds.push({
-                                    id: res.data.data,
+                                    id: res.data,
                                     name: this.modifyContent.name,
                                 });
                                 break;
                             case 'cv':
                                 this.cvs.push({
-                                    id: res.data.data,
+                                    id: res.data,
                                     name: this.modifyContent.name,
                                 });
                                 break;
                             case 'race':
                                 this.races.push({
-                                    id: res.data.data,
+                                    id: res.data,
                                     name: this.modifyContent.name,
                                 });
                                 break;
                             case 'skillType':
                                 this.skillTypes.push({
-                                    id: res.data.data,
+                                    id: res.data,
                                     name: this.modifyContent.name,
                                 });
                                 break;
@@ -103,6 +101,60 @@
                     }).finally(() => {
                         this.systemVar.saving = false;
                     });
+                },
+                fireEditItem: function () {
+                    this.systemVar.saving = true;
+
+                    if (this.apiUri == null) {
+                        return ;
+                    }
+
+                    axios.post(this.apiUri, {
+                        _method: 'patch',
+                        id: this.modifyContent.id,
+                        name: this.modifyContent.name,
+                    }).then((res) => {
+                        let index = -1;
+                        switch (this.systemVar.thisTab) {
+                            case 'guild':
+                                index = this.guilds.indexOf(this.guilds.filter(item => item.id == this.modifyContent.id)[0]);
+                                if (index > -1) {
+                                    this.guilds[index].name = this.modifyContent.name;
+                                }
+                                break;
+                            case 'cv':
+                                index = this.cvs.indexOf(this.cvs.filter(item => item.id == this.modifyContent.id)[0]);
+                                if (index > -1) {
+                                    this.cvs[index].name = this.modifyContent.name;
+                                }
+                                break;
+                            case 'race':
+                                index = this.races.indexOf(this.races.filter(item => item.id == this.modifyContent.id)[0]);
+                                if (index > -1) {
+                                    this.races[index].name = this.modifyContent.name;
+                                }
+                                break;
+                            case 'skillType':
+                                index = this.skillTypes.indexOf(this.skillTypes.filter(item => item.id == this.modifyContent.id)[0]);
+                                if (index > -1) {
+                                    this.skillTypes[index].name = this.modifyContent.name;
+                                }
+                                break;
+                        }
+
+                        this.resetFormStatus();
+                        $('#modifyItem').modal('hide');
+                    }).catch((errors) => {
+                        this.showMsg('error', this.getErrorMsg(errors));
+                    }).finally(() => {
+                        this.systemVar.saving = false;
+                    });
+                },
+                resetFormStatus: function () {
+                    this.modifyContent = {
+                        id: null,
+                        name: ''
+                    };
                 }
             },
             mounted: function () {
@@ -117,16 +169,16 @@
                     result.forEach((res, i) => {
                         switch (i) {
                             case 0:
-                                this.guilds = res.data.data;
+                                this.guilds = res.data;
                                 break;
                             case 1:
-                                this.cvs = res.data.data;
+                                this.cvs = res.data;
                                 break;
                             case 2:
-                                this.races = res.data.data;
+                                this.races = res.data;
                                 break;
                             case 3:
-                                this.skillTypes = res.data.data;
+                                this.skillTypes = res.data;
                                 break;
                         }
                     })
@@ -134,6 +186,10 @@
                     this.showMsg('error', this.getErrorMsg(errors));
                 }).finally(() => {
                     this.systemVar.loading = false;
+                });
+
+                $('#modifyItem').on('hidden.bs.modal', () => {
+                    this.resetFormStatus();
                 });
             },
             computed: {
@@ -192,6 +248,25 @@
                             return '編輯';
                             break;
                     }
+                },
+                apiUri: function () {
+                    let base = '/api/v1/character';
+                    switch (this.systemVar.thisTab) {
+                        case 'guild':
+                            return `${base}/guild`;
+                            break;
+                        case 'cv':
+                            return `${base}/cv`;
+                            break;
+                        case 'race':
+                            return `${base}/race`;
+                            break;
+                        case 'skillType':
+                            return `${base}/skilltype`;
+                            break;
+                        default:
+                            return;
+                    }
                 }
             }
         });
@@ -245,7 +320,7 @@
                                         <td class="align-middle">@{{ guild.id }}</td>
                                         <td class="align-middle">@{{ guild.name }} @{{ (guild.deleted_at == null) ? '' : '(已刪除)' }}</td>
                                         <td class="align-middle">
-                                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                                            <button type="button" class="btn btn-outline-dark mr-2" v-on:click="showModifyModal('edit', guild.id)">
                                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                                 </svg>&nbsp;&nbsp;
@@ -285,7 +360,7 @@
                                         <td class="align-middle">@{{ cv.id }}</td>
                                         <td class="align-middle">@{{ cv.name }} @{{ (cv.deleted_at == null) ? '' : '(已刪除)' }}</td>
                                         <td class="align-middle">
-                                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                                            <button type="button" class="btn btn-outline-dark mr-2" v-on:click="showModifyModal('edit', cv.id)">
                                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                                 </svg>&nbsp;&nbsp;
@@ -325,7 +400,7 @@
                                         <td class="align-middle">@{{ race.id }}</td>
                                         <td class="align-middle">@{{ race.name }} @{{ (race.deleted_at == null) ? '' : '(已刪除)' }}</td>
                                         <td class="align-middle">
-                                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                                            <button type="button" class="btn btn-outline-dark mr-2" v-on:click="showModifyModal('edit', race.id)">
                                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                                 </svg>&nbsp;&nbsp;
@@ -365,7 +440,7 @@
                                         <td class="align-middle">@{{ st.id }}</td>
                                         <td class="align-middle">@{{ st.name }} @{{ (st.deleted_at == null) ? '' : '(已刪除)' }}</td>
                                         <td class="align-middle">
-                                            <button type="button" class="btn btn-outline-dark mr-2" disabled>
+                                            <button type="button" class="btn btn-outline-dark mr-2" v-on:click="showModifyModal('edit', st.id)">
                                                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                                 </svg>&nbsp;&nbsp;
@@ -414,13 +489,21 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <div class="col-6">
+                        <p class="text-dark m-2 text-right">
+                            <svg width="1.5em" height="1.5em" viewBox="0 0 17 16" class="bi bi-exclamation-triangle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                            </svg>
+                            &nbsp;注意！關閉此視窗會清除已輸入的資料
+                        </p>
+                    </div>
                     <button type="button" class="btn btn-outline-dark" data-dismiss="modal">
                         <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-x-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                         </svg>
                         &nbsp;&nbsp;取消
                     </button>
-                    <button v-if="!systemVar.saving" v-on:click="fireAddItem()" type="button" class="btn btn-dark">
+                    <button v-if="!systemVar.saving" v-on:click="(systemVar.edittype == 'add') ? fireAddItem() : fireEditItem()" type="button" class="btn btn-dark">
                         <svg v-if="systemVar.edittype == 'add'" width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-plus-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                         </svg>

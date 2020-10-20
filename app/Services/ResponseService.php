@@ -17,42 +17,42 @@ class ResponseService
 
     /**
      * 回應碼
-     * 
+     *
      * @var int
      */
     protected $code;
 
     /**
      * 回應資料
-     * 
+     *
      * @var \Illuminate\Support\Collection|array|null
      */
     protected $data;
 
     /**
      * 錯誤資料
-     * 
+     *
      * @var \Illuminate\Support\Collection|array|string|null
      */
     protected $errors;
 
     /**
      * 標頭
-     * 
+     *
      * @var \Illuminate\Support\Collection|array|null
      */
     protected $headers;
 
     /**
      * 視圖名稱
-     * 
+     *
      * @var string|null
      */
     protected $view;
 
     /**
      * 重新導向目的地，可為路由名稱或路由字串
-     * 
+     *
      * @var string
      */
     protected $redirectTarget;
@@ -72,20 +72,20 @@ class ResponseService
 
     /**
      * 處理空值
-     * 
+     *
      * @return void
      */
     protected function emptyValueProcessor()
     {
         $this->code = (is_null($this->code)) ? self::OK : $this->code;
         $this->data = (empty($this->data)) ? [] : $this->data;
-        $this->errors = (empty($this->errors)) ? [] : $this->errors;
+        $this->errors = (empty($this->errors)) ? null : $this->errors;
         $this->headers = (empty($this->headers)) ? [] : $this->headers;
     }
 
     /**
      * 設定回應碼
-     * 
+     *
      * @param int $code 回應碼
      * @return $this
      */
@@ -98,7 +98,7 @@ class ResponseService
 
     /**
      * 設定回應資料
-     * 
+     *
      * @param \Illuminate\Support\Collection|array|null $data 回應資料
      * @return $this
      */
@@ -115,7 +115,7 @@ class ResponseService
 
     /**
      * 設定錯誤資料
-     * 
+     *
      * @param \Illuminate\Support\Collection|string|array|null
      * @return $this
      */
@@ -126,13 +126,13 @@ class ResponseService
         }
 
         $this->errors = $errors;
-        
+
         return $this;
     }
 
     /**
      * 設定標頭
-     * 
+     *
      * @param \Illuminate\Support\Collection|array|null $headers 標頭
      * @return $this
      */
@@ -149,7 +149,7 @@ class ResponseService
 
     /**
      * 設定視圖名稱
-     * 
+     *
      * @param string $view
      * @return $this
      */
@@ -162,7 +162,7 @@ class ResponseService
 
     /**
      * 設定重新導向目的地
-     * 
+     *
      * @param string $route
      * @return $this
      */
@@ -175,12 +175,16 @@ class ResponseService
 
     /**
      * 返回 JSON 格式回應
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse JSON 回應
      */
     public function json()
     {
         $this->emptyValueProcessor();
+
+        if (is_null($this->errors)) {
+            return response()->json($this->data, $this->code, $this->headers);
+        }
 
         return response()->json([
             'errors' => $this->errors,
@@ -190,7 +194,7 @@ class ResponseService
 
     /**
      * 返回視圖回應，其中視圖資料請以 setData 設定
-     * 
+     *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
      */
     public function view()
@@ -204,7 +208,7 @@ class ResponseService
 
     /**
      * 重新導向回應
-     * 
+     *
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 重新導向
      */
     public function redirect()
@@ -216,7 +220,7 @@ class ResponseService
 
     /**
      * 返回（重導回）上一個路由
-     * 
+     *
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse 重新導向
      */
     public function back()

@@ -43,6 +43,6 @@ class Nickname extends Model
      */
     public function character()
     {
-        return $this->hasOne(Character::class, 'id', 'character_of');
+        return $this->belongsTo(Character::class, 'character_of', 'id');
     }
 }

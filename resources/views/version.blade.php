@@ -52,7 +52,7 @@
                             start: times,
                         }})
                             .then((res) => {
-                                this.versions = this.versions.concat(this.processData(res.data.data));
+                                this.versions = this.versions.concat(this.processData(res.data));
                             })
                             .catch((errors) => {
                                 this.showMsg('error', this.getErrorMsg(errors));

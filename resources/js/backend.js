@@ -83,15 +83,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 }
                 axios.post('/api/v1/user', data)
                     .then((res) => {
-                        this.user = res.data.data;
+                        this.user = res.data;
                         this.eUser = _.cloneDeep(this.user);
                         this.user.nickname = (this.user.nickname == null) ? this.user.username : this.user.nickname;
                         this.eOrigPassword = '';
                         this.ePassword = '';
                         this.ePasswordConf = '';
                         if (changePW) {
-                            window.location.href = '/admin/logout';
-                            event.target.innerHTML = '登出中';
+                            this.fireLogout();
                         } else {
                           event.target.innerHTML = '儲存';
                           event.target.disabled = false;
@@ -155,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             setTimeout(function () {
                                 document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
                                 window.location.href = '/admin/authentication';
-                            }, 2000);
+                            }, 1000);
                         } else {
                             window.location.href = '/admin/authentication';
                         }
@@ -174,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
             axios.get('/api/v1/user')
                 .then((res) => {
-                    this.user = res.data.data;
+                    this.user = res.data;
                     this.eUser = _.cloneDeep(this.user);
                     this.user.nickname = (this.user.nickname == null) ? this.user.username : this.user.nickname;
                 })
