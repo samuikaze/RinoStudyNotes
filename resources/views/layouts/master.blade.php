@@ -7,7 +7,7 @@
     <title>@yield('title') | 超異域公主連結資料 API</title>
     <script src="{{ mix('js/app.js') }}"></script>
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="/css/custom.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
 </head>
 <body>
     @include('layouts.header')
