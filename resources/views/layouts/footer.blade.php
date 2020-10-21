@@ -1,7 +1,7 @@
 <div class="text-secondary">
     <div class="d-flex">
         <div class="justify-content-start col-6 p-0">
-            &copy; 2020 超異域公主連結資料 API<br>
+            &copy; 2020 璃乃學習筆記<br>
             <template v-if="!loading && versionId != null">
                 <a href="/version/history">Version @{{ versionId }}</a>
             </template>

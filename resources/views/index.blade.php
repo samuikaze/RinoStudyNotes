@@ -1,10 +1,10 @@
 @extends('layouts.master')
 
-@section('title', '超異域公主連結資料 API')
+@section('title', '首頁')
 
 @section('content')
     <div class="jumbotron">
-        <h1 class="display-4">超異域公主連結資料 API</h1>
+        <h1 class="display-4">璃乃學習筆記<span class="lead"> RinoStudyNotes</span></h1>
         <p class="lead">這個網站用於輸出 JSON 格式的資料，方便需要取用超異域公主連結資料的相關應用程式可以利用。</p>
         <hr class="my-4">
         <p>
