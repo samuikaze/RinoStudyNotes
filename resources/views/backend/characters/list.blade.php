@@ -107,13 +107,15 @@
                         };
                     },
                     showEditForm: function (id) {
+                        this.edittype = 'edit';
                         this.requestingData = true;
                         $('#modifyCharacter').modal('show');
 
-                        axios.get('/api/v1/character', {params: {
-                            id: id,
-                        }}).then((res) => {
+                        axios.get(`/api/v1/admin/api/character/${id}`).then((res) => {
                             this.characterInfo = res.data;
+                            this.characterInfo.birthday = (this.characterInfo.birthday == null)
+                                                        ? null
+                                                        : RSN.processDate(this.characterInfo.birthday, true);
                         }).catch((errors) => {
                             this.showMsg('error', this.getErrorMsg(errors));
                         }).finally(() => {
@@ -141,7 +143,28 @@
                         });
                     },
                     fireEditCharacter: function () {
-                        //
+                        this.saving = true;
+                        this.characterInfo.blood_type = (this.characterInfo.blood_type == null) ? null : this.characterInfo.blood_type.toString().toUpperCase();
+                        this.characterInfo.nicknames = (this.characterInfo.nicknames == null) ? null : this.characterInfo.nicknames.trim().replace(/\r/g, '').split('\n');
+                        this.characterInfo.likes = (this.characterInfo.likes == null) ? null : this.characterInfo.likes.trim().replace(/\r/g, '').split('\n');
+                        let data = Object.assign(this.characterInfo, {
+                            _method: 'patch',
+                        });
+                        axios.post('/api/v1/character', data).then((res) => {
+                            let index = this.characters.indexOf(this.characters.filter(chara => chara.id == this.characterInfo.id)[0]);
+
+                            if (index > -1) {
+                                this.characters[index].tw_name = this.characterInfo.tw_name;
+                                this.characters[index].jp_name = this.characterInfo.jp_name;
+                            }
+                            $('#modifyCharacter').modal('hide');
+                        }).catch((errors) => {
+                            this.characterInfo.nicknames = (this.characterInfo.nicknames == null) ? null : this.characterInfo.nicknames.join('\n');
+                            this.characterInfo.likes = (this.characterInfo.likes == null) ? null : this.characterInfo.likes.join('\n');
+                            this.showMsg('error', this.getErrorMsg(errors));
+                        }).finally(() => {
+                            this.saving = false;
+                        });
                     },
                     toggleForm: function (type) {
                         $('#main-form').fadeOut(this.fadeDuration, () => {
@@ -625,7 +648,7 @@
                             </svg>
                             &nbsp;&nbsp;取消
                         </button>
-                        <button v-if="!saving" type="button" class="btn btn-dark" v-on:click="(edittype = 'add') ? fireAddCharacter() : fireEditCharacter()" :disabled="mainFormDisabled">
+                        <button v-if="!saving" type="button" class="btn btn-dark" v-on:click="(edittype == 'add') ? fireAddCharacter() : fireEditCharacter()" :disabled="mainFormDisabled">
                             <svg v-if="edittype == 'add'" width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-plus-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
                             </svg>

@@ -31,13 +31,6 @@
                     this.msg = msg;
                     $('#alertMsg').modal('show');
                 },
-                getErrorMsg: function (error) {
-                    if (error.response == null) {
-                        return error;
-                    } else {
-                        return error.response.data.errors;
-                    }
-                },
                 changeSystemVar: function (key, value) {
                     this.systemVar[key] = value;
                 },
@@ -97,7 +90,7 @@
                         this.modifyContent.name = '';
                         $('#modifyItem').modal('hide');
                     }).catch((errors) => {
-                        this.showMsg('error', this.getErrorMsg(errors));
+                        this.showMsg('error', RSN.getErrorMsg(errors));
                     }).finally(() => {
                         this.systemVar.saving = false;
                     });
@@ -145,7 +138,7 @@
                         this.resetFormStatus();
                         $('#modifyItem').modal('hide');
                     }).catch((errors) => {
-                        this.showMsg('error', this.getErrorMsg(errors));
+                        this.showMsg('error', RSN.getErrorMsg(errors));
                     }).finally(() => {
                         this.systemVar.saving = false;
                     });
@@ -183,7 +176,7 @@
                         }
                     })
                 }).catch((errors) => {
-                    this.showMsg('error', this.getErrorMsg(errors));
+                    this.showMsg('error', RSN.getErrorMsg(errors));
                 }).finally(() => {
                     this.systemVar.loading = false;
                 });

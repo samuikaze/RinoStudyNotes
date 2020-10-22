@@ -32,13 +32,6 @@
                         this.msg = msg;
                         $('#alertMsg').modal('show');
                     },
-                    getErrorMsg: function (error) {
-                        if (error.response == null) {
-                            return (error.message == null) ? error : error.response.data.message;
-                        } else {
-                            return error.response.data.errors;
-                        }
-                    },
                     showVerifyConfirm: function (id, user, type) {
                         this.verifyData.type = type;
                         this.verifyData.user = user;
@@ -60,7 +53,7 @@
                             }
                             $('#verifyConfirmModal').modal('hide');
                         }).catch((errors) => {
-                            this.showMsg('error', this.getErrorMsg(errors));
+                            this.showMsg('error', RSN.getErrorMsg(errors));
                         }).finally(() => {
                             this.fireverifying = false;
                         });
@@ -84,7 +77,7 @@
                             }
                             $('#accountAdminModal').modal('hide');
                         }).catch((errors) => {
-                            this.showMsg('error', this.getErrorMsg(errors));
+                            this.showMsg('error', RSN.getErrorMsg(errors));
                         }).finally(() => {
                             this.fireadmining = false;
                         })
@@ -95,7 +88,7 @@
                         this.verifying = res.data.verifying;
                         this.verified = res.data.verified;
                     }).catch((errors) => {
-                        this.showMsg('error', this.getErrorMsg(errors));
+                        this.showMsg('error', RSN.getErrorMsg(errors));
                     }).finally(() => {
                         this.loading = false;
                     });

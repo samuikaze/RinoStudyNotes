@@ -54,6 +54,8 @@ Route::post('/admin/register', 'Backend\AuthenticationController@register');
 Route::get('/admin/logout', 'Backend\AuthenticationController@logout')->name('logout');
 Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
     Route::group(['prefix' => 'v1'], function () {
+        Route::get('/version', 'WebController@getVersionId');
+        Route::get('/version/all', 'WebController@getAllVersions');
         // 會驗登入的路由
         Route::group(['middleware' => 'verify.backend'], function () {
             // 取得使用者資料
@@ -65,6 +67,8 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
             Route::group(['middleware' => 'verify.permission:view'], function () {
                 // 取得待審核與已審核清單
                 Route::get('/user/verify', 'Backend\SystemConfigController@getVerifyUsers');
+                // [後台] 取得角色資料
+                Route::get('/admin/api/character/{id?}', 'Backend\CharacterController@characterInfo');
             });
 
             // 會驗編輯權限的路由
@@ -75,6 +79,7 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
                 Route::patch('/user/verify/admin', 'Backend\SystemConfigController@adminAccount');
                 // 新增角色資料
                 Route::post('/character', 'Backend\CharacterController@addCharacter');
+                Route::patch('/character', 'Backend\CharacterController@editCharacter');
                 // 編輯聲優、公會、種族、技能種類資料
                 Route::post('/character/{data?}', 'Backend\CharacterController@addRelatedData');
                 // 編輯聲優、公會、種族、技能種類資料

@@ -24,10 +24,4 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/cvs', 'Api\CharacterController@CVList');
         Route::get('/races', 'Api\CharacterController@raceList');
     });
-
-    // 前端網頁用路由
-    Route::group(['as' => 'webfront.'], function () {
-        Route::get('/version', 'WebController@getVersionId');
-        Route::get('/version/all', 'WebController@getAllVersions');
-    });
 });
