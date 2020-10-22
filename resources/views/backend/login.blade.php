@@ -29,13 +29,6 @@
                         this.msg = msg;
                         $('#alertMsg').modal('show');
                     },
-                    getErrorMsg: function (error) {
-                        if (error.response == null) {
-                            return error;
-                        } else {
-                            return error.response.data.errors;
-                        }
-                    },
                     fireLogin: function (event) {
                         if (this.login.username.length > 0 && this.login.password.length > 0) {
                             event.target.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;登入中';
@@ -57,7 +50,7 @@
                                 .catch((errors) => {
                                     event.target.innerHTML = '登入';
                                     event.target.disabled = false;
-                                    this.showMsg('error', this.getErrorMsg(errors));
+                                    this.showMsg('error', RSN.getErrorMsg(errors));
                                 });
                         } else {
                             if (this.login.username.length < 1) {
@@ -94,7 +87,7 @@
                                 window.location.href = '/admin';
                             })
                             .catch((errors) => {
-                                this.showMsg('error', this.getErrorMsg(errors));
+                                this.showMsg('error', RSN.getErrorMsg(errors));
                                 event.target.innerHTML = '申請';
                                 event.target.disabled = false;
                             });

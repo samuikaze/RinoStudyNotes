@@ -48,6 +48,42 @@ window.axios.defaults.headers.common = {
 //     forceTLS: true
 // });
 
+window.RSN = (function () {
+    let data = {
+        //
+    };
+    return {
+        processDate: function (raw, forDateField = false) {
+            let date = new Date(raw);
+            let Y = `${date.getFullYear()}`;
+            let M = ((date.getMonth() + 1) < 10) ? `0${(date.getMonth() + 1).toString()}` : (date.getMonth() + 1).toString();
+            let D = (date.getDate() < 10) ? `0${date.getDate().toString()}` : date.getDate().toString();
+            let H = (date.getHours() < 10) ? `0${date.getHours().toString()}` : date.getHours().toString();
+            let i = (date.getMinutes() < 10) ? `0${date.getMinutes().toString()}` : date.getMinutes().toString();
+            let S = (date.getSeconds() < 10) ? `0${date.getSeconds().toString()}` : date.getSeconds().toString();
+
+            if (forDateField) {
+                return `${Y}-${M}-${D}`;
+            }
+
+            return `${Y}-${M}-${D} ${H}:${i}:${S}`;
+        },
+        getErrorMsg: function (error) {
+            if (error.response.data.message != null) {
+                return error.response.data.message;
+            } else {
+                return error.response.data.errors;
+            }
+        },
+        set: function (key, val) {
+            data[key] = val;
+        },
+        get: function (key) {
+            return data[key];
+        }
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function (e) {
     new Vue({
         el: '#footer',

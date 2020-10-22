@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Development\web\DataAPI\resources\js\backend.js */"./resources/js/backend.js");
+module.exports = __webpack_require__(/*! D:\Development\web\RinoStudyNotes\resources\js\backend.js */"./resources/js/backend.js");
 
 
 /***/ })

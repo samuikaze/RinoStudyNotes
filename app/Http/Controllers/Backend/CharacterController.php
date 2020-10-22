@@ -11,6 +11,7 @@ use App\Models\Race;
 use App\Models\Skill;
 use App\Models\SkillType;
 use App\Services\ResponseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -109,6 +110,116 @@ class CharacterController extends Controller
         Skill::insert($skills);
 
         return $this->response->setData($id)->json();
+    }
+
+    /**
+     * 編輯角色資料
+     *
+     * @param \Illuminate\Http\Request $request HTTP 請求
+     * @return \Illuminate\Http\JsonResponse 200 回應或錯誤訊息
+     *
+     * @todo 暱稱和技能資料的新增或編輯處理
+     */
+    public function editCharacter(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'numeric'],
+            'tw_name' => ['required', 'string', 'max:10'],
+            'jp_name' => ['required', 'string', 'max:15'],
+            'cv_of' => ['required', 'numeric'],
+            'race_of' => ['required', 'numeric'],
+            'description' => ['required', 'string', 'max: 255'],
+            'ages' => ['required', 'numeric', 'min:0'],
+            'height' => ['required', 'numeric', 'min:0'],
+            'weight' => ['required', 'numeric', 'min:0'],
+            'nicknames' => ['required', 'array', 'min:1'],
+            'nicknames.*' => ['required', 'string'],
+            'likes' => ['required', 'array', 'min:1'],
+            'likes.*' => ['required', 'string'],
+            'birthday' => ['required', 'date'],
+            'guild_of' => ['required', 'numeric'],
+            'blood_type' => ['nullable', 'string', 'in:A,B,O,AB'],
+            's_image_url' => ['nullable', 'string'],
+            'f_image_url' => ['nullable', 'string'],
+            't_image_url' => ['nullable', 'string'],
+            'skills' => ['required', 'array'],
+            'skills.*.skill_type_of' => ['required', 'numeric'],
+            'skills.*.skill_name' => ['nullable', 'string', 'max:15'],
+            'skills.*.description' => ['nullable', 'string', 'max:255'],
+            'skills.*.effect' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError('請確認是否仍有資料未填或有資料格式不正確')
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
+        }
+
+        $request->merge(['likes' => json_encode($request->input('likes'), JSON_UNESCAPED_UNICODE)]);
+        $character = $request->only([
+            'id', 'guild_of', 'cv_of', 'race_of', 'tw_name', 'jp_name',
+            's_image_url', 'f_image_url', 't_image_url', 'description',
+            'ages', 'height', 'weight', 'blood_type', 'likes', 'birthday'
+        ]);
+        $nicknames = $request->input('nicknames');
+        $skills = $request->input('skills');
+        dd($character);
+
+        // 開始更新資料
+        Character::where('id', $request->input('id'))->update($character);
+        Nickname::where('character_of', $request->input('id'))->get();
+        // TODO: 暱稱和技能資料的新增或編輯處理
+    }
+
+    /**
+     * 以角色 ID 取得角色資料
+     *
+     * @param int|null $id 角色 ID
+     * @return \Illuminate\Http\JsonResponse 角色資料
+     */
+    public function characterInfo(int $id = null)
+    {
+        if (is_null($id)) {
+            return $this->response
+                        ->setError('沒有搜尋條件，無法取得角色資料')
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
+        }
+
+        $character = Character::select('id', 'guild_of', 'cv_of', 'race_of', 'tw_name', 'jp_name', 'description', 'ages', 'height', 'weight', 'blood_type', 'likes', 'birthday')
+                              ->where('id', $id)
+                              ->with([
+                                  'nicknames' => function ($q) {
+                                      $q->select('id', 'character_of', 'nickname');
+                                  },
+                                  'skills' => function ($q) {
+                                      $q->select('skill_name', 'skill_type_of', 'description', 'effect')
+                                        ->orderBy('skill_type_of', 'asc');
+                                  },
+                              ])
+                              ->first();
+        if (!is_null($character)) {
+            // 處理技能資料
+            $diff = SkillType::get()->pluck('id')->diff($character->skills->pluck('skill_type_of')->toArray());
+            // 如果技能種類 ID 陣列和技能資料中的種類 ID 陣列對不起來就要把空資料推進集合裡
+            if (count($diff) > 0) {
+                foreach ($diff as $lack) {
+                    $character->skills->push([
+                        'skill_name' => '',
+                        'skill_type_of' => $lack,
+                        'description' => '',
+                        'effect' => '',
+                    ]);
+                }
+            }
+            $character->likes = implode("\n", json_decode($character->likes));
+            $character->birthday = is_null($character->birthday) ? null : Carbon::parse($character->birthday)->toISOString(true);
+            $character = (empty($character)) ? [] : $character->toArray();
+            $character['nicknames'] = implode("\n", collect($character['nicknames'])->pluck('nickname')->toArray());
+        }
+
+        return $this->response->setData($character)->json();
     }
 
     /**

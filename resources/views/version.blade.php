@@ -19,32 +19,14 @@
                         this.msg = msg;
                         $('#alertMsg').modal('show');
                     },
-                    getErrorMsg: function (error) {
-                        if (error.response == null) {
-                            return error.response;
-                        } else {
-                            return (error.response.data.errors == null) ? error.response.message : error.response.data.errors;
-                        }
-                    },
                     processData: function (data) {
                         data = data.map((item) => {
-                            item.created_at = this.processDate(item.created_at);
-                            item.updated_at = this.processDate(item.updated_at);
+                            item.created_at = RSN.processDate(item.created_at);
+                            item.updated_at = RSN.processDate(item.updated_at);
                             return item;
                         });
 
                         return data;
-                    },
-                    processDate: function (raw) {
-                        let date = new Date(raw);
-                        let Y = `${date.getFullYear()}`;
-                        let M = ((date.getMonth() + 1) < 10) ? `0${(date.getMonth() + 1).toString()}` : (date.getMonth() + 1).toString();
-                        let D = (date.getDate() < 10) ? `0${date.getDate().toString()}` : date.getDate().toString();
-                        let H = (date.getHours() < 10) ? `0${date.getHours().toString()}` : date.getHours().toString();
-                        let i = (date.getMinutes() < 10) ? `0${date.getMinutes().toString()}` : date.getMinutes().toString();
-                        let S = (date.getSeconds() < 10) ? `0${date.getSeconds().toString()}` : date.getSeconds().toString();
-
-                        return `${Y}-${M}-${D} ${H}:${i}:${S}`;
                     },
                     getVersions: function (times) {
                         this.loading = true;
@@ -55,7 +37,7 @@
                                 this.versions = this.versions.concat(this.processData(res.data));
                             })
                             .catch((errors) => {
-                                this.showMsg('error', this.getErrorMsg(errors));
+                                this.showMsg('error', RSN.getErrorMsg(errors));
                             })
                             .finally(() => {
                                 this.loading = false;
