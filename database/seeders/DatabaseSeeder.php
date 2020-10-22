@@ -99,6 +99,11 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['完成編輯角色相關資料功能', '修正頁腳 CSS 問題', '登入頁面密碼欄位按下 Enter 也會觸發登入事件', '調整登出連結在滑鼠指著時不會顯示底線'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-21 02:30:00'),
                         'updated_at' => Carbon::parse('2020-10-21 02:30:00'),
+                    ], [
+                        'version_id' => '0.0.8',
+                        'content' => json_encode(['完成後台角色資料取用', '將部分 JS 函式搬移至全域 JS 中'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-23 03:34:00'),
+                        'updated_at' => Carbon::parse('2020-10-23 03:34:00'),
                     ],
                 ],
             ],
