@@ -25,9 +25,7 @@
 機器人講求的是回應快速，原本我是使用爬蟲爬各種資料，但是在經歷各種網站改版和回應過慢的問題後，還是決定自己寫一個提供資料的系統，再也不會因為網站改版或 Chrome 問題而煩惱要怎麼改 code 了
 
 ## 線上版本
-~~由於這個專案就是我自己需要這些資料，所以目前可以直接從這邊存取資料。~~
-
-由於原本的空間在 API 呼叫會檢查是不是瀏覽器，所以目前正在尋找更好的空間。
+由於這個專案就是我自己需要這些資料，所以目前可以直接 [從這邊(SSL)](https://samukaze.heliohost.us/) 存取資料。
 
 ## 需求：
 - php 7.3 或以上
@@ -74,7 +72,7 @@
     Content-Type: application/json
     X-Requested-With: XMLHttpRequest
     ```
-    ~~- API 路由見網頁說明~~
+    - API 路由[見網頁說明](https://samukaze.heliohost.us/api/all)
 
 ## 授權
 MIT License
