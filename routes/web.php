@@ -33,12 +33,18 @@ Route::group(['prefix' => 'admin'], function () {
 
         // 有權才可檢視的路由
         Route::group(['middleware' => 'verify.permission:view'], function () {
-            // 審核
-            Route::get('/verify', 'Backend\ViewController@verifyEditableApply');
             // 角色資料管理
             Route::get('/character', 'Backend\ViewController@characterList');
             // 角色關聯的資料管理
             Route::get('/character/related', 'Backend\ViewController@characterRelatedData');
+        });
+
+        // 僅有管理員可以存取的路由
+        Route::group(['middleware' => 'verify.permission:admin'], function () {
+            // 審核
+            Route::get('/verify', 'Backend\ViewController@verifyEditableApply');
+            // 版本管理
+            Route::get('/versions', 'Backend\ViewController@versionControl');
         });
     });
 
@@ -52,39 +58,48 @@ Route::post('/admin/login', 'Backend\AuthenticationController@login');
 Route::post('/admin/register', 'Backend\AuthenticationController@register');
 // 登出
 Route::get('/admin/logout', 'Backend\AuthenticationController@logout')->name('logout');
-Route::group(['as' => 'webadmin.', 'prefix' => 'api'], function () {
-    Route::group(['prefix' => 'v1'], function () {
-        Route::get('/version', 'WebController@getVersionId');
-        Route::get('/version/all', 'WebController@getAllVersions');
-        // 會驗登入的路由
-        Route::group(['middleware' => 'verify.backend'], function () {
-            // 取得使用者資料
-            Route::get('/user', 'Backend\AuthenticationController@userInfo');
-            // 編輯使用者資料
-            Route::patch('/user', 'Backend\AuthenticationController@editProfile');
+Route::get('/frontend/version', 'WebController@getVersionId');
+Route::get('/frontend/version/all', 'WebController@getAllVersions');
+Route::group(['as' => 'webadmin.', 'prefix' => 'webapi'], function () {
+    // 會驗登入的路由
+    Route::group(['middleware' => 'verify.backend'], function () {
+        // 取得使用者資料
+        Route::get('/user', 'Backend\AuthenticationController@userInfo');
+        // 編輯使用者資料
+        Route::patch('/user', 'Backend\AuthenticationController@editProfile');
 
-            // 會驗檢視權限的路由
-            Route::group(['middleware' => 'verify.permission:view'], function () {
-                // 取得待審核與已審核清單
-                Route::get('/user/verify', 'Backend\SystemConfigController@getVerifyUsers');
-                // [後台] 取得角色資料
-                Route::get('/admin/api/character/{id?}', 'Backend\CharacterController@characterInfo');
-            });
+        // 會驗檢視權限的路由
+        Route::group(['middleware' => 'verify.permission:view'], function () {
+            // 取得待審核與已審核清單
+            Route::get('/user/verify', 'Backend\SystemConfigController@getVerifyUsers');
+            // [後台] 取得角色資料
+            Route::get('/admin/api/character/{id?}', 'Backend\CharacterController@characterInfo');
+        });
 
-            // 會驗編輯權限的路由
-            Route::group(['middleware' => 'verify.permission:edit'], function () {
-                // 通過或拒絕審核
-                Route::patch('/user/verify/verify', 'Backend\SystemConfigController@verifyUser');
-                // 停權或復權帳號
-                Route::patch('/user/verify/admin', 'Backend\SystemConfigController@adminAccount');
-                // 新增角色資料
-                Route::post('/character', 'Backend\CharacterController@addCharacter');
-                Route::patch('/character', 'Backend\CharacterController@editCharacter');
-                // 編輯聲優、公會、種族、技能種類資料
-                Route::post('/character/{data?}', 'Backend\CharacterController@addRelatedData');
-                // 編輯聲優、公會、種族、技能種類資料
-                Route::patch('/character/{data?}', 'Backend\CharacterController@editRelatedData');
-            });
+        // 會驗編輯權限的路由
+        Route::group(['middleware' => 'verify.permission:edit'], function () {
+            // 新增角色資料
+            Route::post('/character', 'Backend\CharacterController@addCharacter');
+            // 編輯角色資料
+            Route::patch('/character', 'Backend\CharacterController@editCharacter');
+            // 編輯聲優、公會、種族、技能種類資料
+            Route::post('/character/{data?}', 'Backend\CharacterController@addRelatedData');
+            // 編輯聲優、公會、種族、技能種類資料
+            Route::patch('/character/{data?}', 'Backend\CharacterController@editRelatedData');
+        });
+
+        // 僅有管理員可存取的路由
+        Route::group(['middleware' => 'verify.permission:admin'], function () {
+            // 通過或拒絕審核
+            Route::patch('/user/verify/verify', 'Backend\SystemConfigController@verifyUser');
+            // 停權或復權帳號
+            Route::patch('/user/verify/admin', 'Backend\SystemConfigController@adminAccount');
+            // 新增版本
+            Route::post('/version', 'Backend\SystemConfigController@addVersion');
+            // 修改版本
+            Route::patch('/version', 'Backend\SystemConfigController@editVersion');
+            // 刪除版本
+            Route::delete('/version', 'Backend\SystemConfigController@deleteVersion');
         });
     });
 });

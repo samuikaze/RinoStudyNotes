@@ -68,6 +68,8 @@ class VerifyPermission
                         return $next($request);
                     }
                     break;
+                case 'admin':
+                    break;
             }
 
             // 其餘全部不給過
@@ -94,6 +96,8 @@ class VerifyPermission
                     if (in_array('viewdata', $accessible) || in_array('editdata', $accessible)) {
                         return $next($request);
                     }
+                    break;
+                case 'admin':
                     break;
             }
 

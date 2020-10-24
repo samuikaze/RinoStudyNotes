@@ -50024,7 +50024,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     created: function created() {
       var _this = this;
 
-      axios.get('/api/v1/version').then(function (res) {
+      axios.get('/frontend/version').then(function (res) {
         _this.versionId = res.data;
       })["catch"](function (errors) {
         console.log(errors);

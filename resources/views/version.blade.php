@@ -30,7 +30,7 @@
                     },
                     getVersions: function (times) {
                         this.loading = true;
-                        axios.get('/api/v1/version/all', {params: {
+                        axios.get('/frontend/version/all', {params: {
                             start: times,
                         }})
                             .then((res) => {

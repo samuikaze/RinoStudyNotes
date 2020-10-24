@@ -51,16 +51,6 @@ class ViewController extends Controller
     }
 
     /**
-     * 審核申請
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
-     */
-    public function verifyEditableApply()
-    {
-        return $this->response->setView('backend.verifyapply')->view();
-    }
-
-    /**
      * 角色一覽
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
@@ -78,5 +68,25 @@ class ViewController extends Controller
     public function characterRelatedData()
     {
         return $this->response->setView('backend.characters.relate')->view();
+    }
+
+    /**
+     * 審核申請
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function verifyEditableApply()
+    {
+        return $this->response->setView('backend.systemconfigs.verifyapply')->view();
+    }
+
+    /**
+     * 版本管理
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function versionControl()
+    {
+        return $this->response->setView('backend.systemconfigs.version')->view();
     }
 }

@@ -117,8 +117,6 @@ class CharacterController extends Controller
      *
      * @param \Illuminate\Http\Request $request HTTP 請求
      * @return \Illuminate\Http\JsonResponse 200 回應或錯誤訊息
-     *
-     * @todo 暱稱和技能資料的新增或編輯處理
      */
     public function editCharacter(Request $request)
     {
@@ -157,19 +155,74 @@ class CharacterController extends Controller
         }
 
         $request->merge(['likes' => json_encode($request->input('likes'), JSON_UNESCAPED_UNICODE)]);
+
+        $updateTime = Carbon::now();
+
+        // 開始更新資料
         $character = $request->only([
             'id', 'guild_of', 'cv_of', 'race_of', 'tw_name', 'jp_name',
             's_image_url', 'f_image_url', 't_image_url', 'description',
             'ages', 'height', 'weight', 'blood_type', 'likes', 'birthday'
         ]);
-        $nicknames = $request->input('nicknames');
-        $skills = $request->input('skills');
-        dd($character);
-
-        // 開始更新資料
         Character::where('id', $request->input('id'))->update($character);
-        Nickname::where('character_of', $request->input('id'))->get();
-        // TODO: 暱稱和技能資料的新增或編輯處理
+        unset($character);
+
+        // 暱稱要先把多出來的加進去，再刪除這次傳入的資料中沒有的暱稱
+        $nicknames = $request->input('nicknames');
+        $exists = Nickname::select('id', 'nickname')->where('character_of', $request->input('id'))->get()->pluck('nickname')->toArray();
+        $adds = collect(array_diff($nicknames, $exists))->map(function ($nickname) use ($request, $updateTime) {
+            $nickname = [
+                'character_of' => $request->input('id'),
+                'nickname' => $nickname,
+                'created_at' => $updateTime,
+                'updated_at' => $updateTime,
+            ];
+            return $nickname;
+        })->toArray();
+        Nickname::insert($adds);
+        Nickname::where('character_of', $request->input('id'))->whereNotIn('nickname', $nicknames)->delete();
+        unset($nicknames, $exists, $adds);
+
+        // 技能
+        $skills = collect($request->input('skills'))->filter(function ($skill) {
+            if (is_null($skill['skill_name']) || is_null($skill['description'])) {
+                return false;
+            }
+            return true;
+        });
+
+        if ($skills->count() > 0) {
+            $exists = Skill::where('character_of', $request->input('id'))->get();
+            // 找出已存在的技能且資料有變動的
+            $diff = collect($skills)->whereIn('skill_type_of', $exists->pluck('skill_type_of'))->filter(function ($skill, $key) use ($exists) {
+                $exist = $exists[$key];
+                if ($skill['skill_name'] != $exist['skill_name'] || $skill['description'] != $exist['description'] || $skill['effect'] != $exist['effiect']) {
+                    return true;
+                }
+                return false;
+            });
+            // 更新已存在技能
+            $target = $exists->whereIn('skill_type_of', $diff->pluck('skill_type_of'))->pluck('skill_type_of');
+            foreach ($target as $t) {
+                $data = $skills->where('skill_type_of', $t)->first();
+                Skill::where('character_of', $request->input('id'))->where('skill_type_of', $t)->update([
+                    'skill_name' => $data['skill_name'],
+                    'description' => $data['description'],
+                    'effect' => $data['effect'],
+                ]);
+            }
+            // 找出資料庫中原本沒有存的技能
+            $adds = collect($skills)->whereNotIn('skill_type_of', $exists->pluck('skill_type_of'))->map(function ($add) use ($request, $updateTime) {
+                $add['character_of'] = $request->input('id');
+                $add['created_at'] = $add['updated_at'] = $updateTime;
+                return $add;
+            })->toArray();
+            Skill::insert($adds);
+            // 刪除這次留空的項目
+            Skill::where('character_of', $request->input('id'))->whereNotIn('skill_type_of', $skills->pluck('skill_type_of'))->delete();
+        }
+
+        return $this->response->json();
     }
 
     /**
@@ -194,28 +247,31 @@ class CharacterController extends Controller
                                       $q->select('id', 'character_of', 'nickname');
                                   },
                                   'skills' => function ($q) {
-                                      $q->select('skill_name', 'skill_type_of', 'description', 'effect')
-                                        ->orderBy('skill_type_of', 'asc');
+                                      $q->orderBy('skill_type_of', 'asc');
                                   },
                               ])
                               ->first();
         if (!is_null($character)) {
             // 處理技能資料
             $diff = SkillType::get()->pluck('id')->diff($character->skills->pluck('skill_type_of')->toArray());
+            $skills = $character->skills->map(function ($skill) {
+                return collect($skill->toArray())->except(['created_at', 'updated_at'])->toArray();
+            })->toArray();
             // 如果技能種類 ID 陣列和技能資料中的種類 ID 陣列對不起來就要把空資料推進集合裡
             if (count($diff) > 0) {
                 foreach ($diff as $lack) {
-                    $character->skills->push([
+                    $skills[] = [
                         'skill_name' => '',
                         'skill_type_of' => $lack,
                         'description' => '',
                         'effect' => '',
-                    ]);
+                    ];
                 }
             }
             $character->likes = implode("\n", json_decode($character->likes));
             $character->birthday = is_null($character->birthday) ? null : Carbon::parse($character->birthday)->toISOString(true);
             $character = (empty($character)) ? [] : $character->toArray();
+            $character['skills'] = $skills;
             $character['nicknames'] = implode("\n", collect($character['nicknames'])->pluck('nickname')->toArray());
         }
 

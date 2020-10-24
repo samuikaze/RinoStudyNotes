@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       id: 3,
                       name: '版本資料管理',
                       route: '/admin/versions',
-                      disabled: true
                     }
                   ],
                   sysop: true
@@ -81,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
                     changePW = true;
                 }
-                axios.post('/api/v1/user', data)
+                axios.post('/webapi/user', data)
                     .then((res) => {
                         this.user = res.data;
                         this.eUser = _.cloneDeep(this.user);
@@ -171,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             }
 
-            axios.get('/api/v1/user')
+            axios.get('/webapi/user')
                 .then((res) => {
                     this.user = res.data;
                     this.eUser = _.cloneDeep(this.user);

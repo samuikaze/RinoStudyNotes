@@ -40,7 +40,7 @@
                     },
                     fireVerify: function () {
                         this.fireverifying = true;
-                        axios.post('/api/v1/user/verify/verify', {
+                        axios.post('/webapi/user/verify/verify', {
                             _method: 'patch',
                             id: this.verifyData.userID,
                             type: this.verifyData.type,
@@ -66,7 +66,7 @@
                     },
                     fireAccountAdmin: function () {
                         this.fireadmining = true;
-                        axios.post('/api/v1/user/verify/admin', {
+                        axios.post('/webapi/user/verify/admin', {
                             _method: 'patch',
                             id: this.accountAdminData.userID,
                             type: this.accountAdminData.type,
@@ -84,7 +84,7 @@
                     }
                 },
                 mounted: function () {
-                    axios.get('/api/v1/user/verify').then((res) => {
+                    axios.get('/webapi/user/verify').then((res) => {
                         this.verifying = res.data.verifying;
                         this.verified = res.data.verified;
                     }).catch((errors) => {
@@ -215,7 +215,7 @@
                                 <tbody v-if="verified.length > 0">
                                     <tr v-for="(verify, i) in verified" :key="verify.id">
                                         <td class="align-middle">@{{ verify.id }}</td>
-                                        <td class="align-middle">@{{ verify.username }} <span v-if="verify.status == 2" class="text-secondary ml-2">(已停權)</span></td>
+                                        <td class="align-middle">@{{ verify.username }} <h5 class="m-0 d-inline"><span v-if="verify.status == 2" class="badge badge-dark ml-1">已停權</span></h5></td>
                                         <td class="align-middle">@{{ (verify.nickname == null) ? verify.username : verify.nickname }}</td>
                                         <td class="align-middle">
                                             <button type="button" v-if="verify.status != 2" v-on:click="showAccountAdminConfirm(verify.id, verify.username, 'disable')" class="btn btn btn-dark mr-2">

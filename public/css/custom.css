@@ -74,11 +74,13 @@ body {
   width: 40%;
 }
 
-.related-table th:nth-child(1) {
+.related-table th:nth-child(1),
+.version-table th:nth-child(1) {
   width: 5%;
 }
 
-.related-table th:nth-child(2) {
+.related-table th:nth-child(2),
+.version-table th:nth-child(2) {
   width: 80%;
 }
 

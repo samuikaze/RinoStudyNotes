@@ -11,6 +11,6 @@
             此網站目前為個人興趣所架設，與 Cygames 或 So-net 並無任何關係。<br>
             如需回報問題，可至 GitHub 上回報。
         </p>
-        <a class="btn btn-primary btn-lg" href="https://github.com/samuikaze/PCRedive-DataAPI" target="_blank" role="button">前往 GitHub</a>
+        <a class="btn btn-primary btn-lg" href="https://github.com/samuikaze/RinoStudyNotes" target="_blank" role="button">前往 GitHub</a>
     </div>
 @endsection
