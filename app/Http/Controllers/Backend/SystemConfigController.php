@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Version;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class SystemConfigController extends Controller
@@ -115,6 +117,91 @@ class SystemConfigController extends Controller
                 ]);
                 break;
         }
+
+        return $this->response->json();
+    }
+
+    /**
+     * 新增版本
+     *
+     * @param \Illuminate\Http\Request $request HTTP 請求，應當包含版本號碼與變更點資料
+     * @return \Illuminate\Http\JsonResponse 成功或失敗訊息
+     */
+    public function addVersion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'version_id' => ['required', 'string'],
+            'content' => ['required', 'array'],
+            'content.*' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->setError('請確認是否所有欄位都已填實')->setCode(400)->json();
+        }
+
+        $id = Version::create([
+            'version_id' => $request->input('version_id'),
+            'content' => json_encode($request->input('content'), JSON_UNESCAPED_UNICODE),
+        ]);
+
+        $id = $id->id;
+
+        return $this->response->setData($id)->json();
+    }
+
+    /**
+     * 編輯版本資料
+     *
+     * @param \Illuminate\Http\Request $request HTTP 請求，應當包含版本 ID、號碼與變更點資料
+     * @return \Illuminate\Http\JsonResponse 成功或失敗訊息
+     */
+    public function editVersion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'numeric'],
+            'version_id' => ['required', 'string'],
+            'content' => ['required', 'array'],
+            'content.*' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->setError('請確認所有欄位是否皆已填實')->setCode(400)->json();
+        }
+
+        if (empty(Version::where('id', $request->input('id'))->first())) {
+            return $this->response->setError('找不到該版本資料，請再次確認您的資料是否正確')->setCode(400)->json();
+        }
+
+        Version::where('id', $request->input('id'))->update([
+            'version_id' => $request->input('version_id'),
+            'content' => json_encode($request->input('content'), JSON_UNESCAPED_UNICODE),
+        ]);
+
+        return $this->response->json();
+    }
+
+    /**
+     * 刪除版本資料
+     *
+     * @param \Illuminate\Http\Request $request HTTP 請求，應當包含版本 ID、號碼與變更點資料
+     * @return \Illuminate\Http\JsonResponse 成功或失敗訊息
+     */
+    public function deleteVersion(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response->setError('請確實傳送 ID 值')->setCode(400)->json();
+        }
+
+        if (empty(Version::where('id', $request->input('id'))->first())) {
+            return $this->response->setError('找不到該版本資料，請再次確認 ID 值是否正確')->setCode(400)->json();
+        }
+
+        Version::where('id', $request->input('id'))->delete();
+        DB::select('ALTER TABLE `versions` AUTO_INCREMENT = '.$request->input('id').';');
 
         return $this->response->json();
     }

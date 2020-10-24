@@ -111,7 +111,7 @@
                         this.requestingData = true;
                         $('#modifyCharacter').modal('show');
 
-                        axios.get(`/api/v1/admin/api/character/${id}`).then((res) => {
+                        axios.get(`/webapi/admin/api/character/${id}`).then((res) => {
                             this.characterInfo = res.data;
                             this.characterInfo.birthday = (this.characterInfo.birthday == null)
                                                         ? null
@@ -127,7 +127,7 @@
                         this.characterInfo.blood_type = (this.characterInfo.blood_type == null) ? null : this.characterInfo.blood_type.toString().toUpperCase();
                         this.characterInfo.nicknames = (this.characterInfo.nicknames == null) ? null : this.characterInfo.nicknames.trim().replace(/\r/g, '').split('\n');
                         this.characterInfo.likes = (this.characterInfo.likes == null) ? null : this.characterInfo.likes.trim().replace(/\r/g, '').split('\n');
-                        axios.post('/api/v1/character', this.characterInfo).then((res) => {
+                        axios.post('/webapi/character', this.characterInfo).then((res) => {
                             this.characters.push({
                                 id: res.data,
                                 tw_name: this.characterInfo.tw_name,
@@ -150,7 +150,7 @@
                         let data = Object.assign(this.characterInfo, {
                             _method: 'patch',
                         });
-                        axios.post('/api/v1/character', data).then((res) => {
+                        axios.post('/webapi/character', data).then((res) => {
                             let index = this.characters.indexOf(this.characters.filter(chara => chara.id == this.characterInfo.id)[0]);
 
                             if (index > -1) {
@@ -196,7 +196,7 @@
                     },
                     fireAddCV: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/character/cv', {
+                        axios.post('/webapi/character/cv', {
                             name: this.createCV.name,
                         }).then((res) => {
                             this.cvs.push({id: res.data, name: this.createCV.name});
@@ -211,7 +211,7 @@
                     },
                     fireAddGuild: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/character/guild', {
+                        axios.post('/webapi/character/guild', {
                             name: this.createGuild.name,
                         }).then((res) => {
                             this.guilds.push({id: res.data, name: this.createGuild.name});
@@ -226,7 +226,7 @@
                     },
                     fireAddRace: function () {
                         this.subsaving = true;
-                        axios.post('/api/v1/character/race', {
+                        axios.post('/webapi/character/race', {
                             name: this.createRace.name,
                         }).then((res) => {
                             this.races.push({id: res.data, name: this.createRace.name});
@@ -526,7 +526,11 @@
                                     </select>
                                 </div>
                                 <hr>
-                                <p class="text-danger text-center"><strong>請注意，技能名稱或說明如有其中一項留空，則該技能不會被寫入資料庫！</strong></p>
+                                <p class="text-danger text-center">
+                                    <strong>
+                                        @{{ (edittype == 'edit') ? '如需刪除技能資料，請將該技能的名稱與說明欄位整個留空！' : '請注意，技能名稱或說明如有其中一項留空，則該技能不會被寫入資料庫！' }}
+                                    </strong>
+                                </p>
                                 <template v-for="(st, i) in skillTypes">
                                     <div class="form-group" :key="st.id">
                                         <label :for="`skillType-${st.id}`">@{{ `${st.name}名稱` }}</label>

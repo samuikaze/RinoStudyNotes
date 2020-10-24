@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             loading: true
         },
         created: function () {
-            axios.get('/api/v1/version')
+            axios.get('/frontend/version')
                 .then((res) => {
                     this.versionId = res.data;
                 })

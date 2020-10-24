@@ -243,7 +243,7 @@
                     }
                 },
                 apiUri: function () {
-                    let base = '/api/v1/character';
+                    let base = '/webapi/character';
                     switch (this.systemVar.thisTab) {
                         case 'guild':
                             return `${base}/guild`;

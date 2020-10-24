@@ -122,8 +122,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }, {
           id: 3,
           name: '版本資料管理',
-          route: '/admin/versions',
-          disabled: true
+          route: '/admin/versions'
         }],
         sysop: true
       }, {
@@ -168,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           changePW = true;
         }
 
-        axios.post('/api/v1/user', data).then(function (res) {
+        axios.post('/webapi/user', data).then(function (res) {
           _this.user = res.data;
           _this.eUser = _.cloneDeep(_this.user);
           _this.user.nickname = _this.user.nickname == null ? _this.user.username : _this.user.nickname;
@@ -232,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         window.axios.defaults.headers.common['Authorization'] = "Bearer ".concat(token);
       }
 
-      axios.get('/api/v1/user').then(function (res) {
+      axios.get('/webapi/user').then(function (res) {
         _this2.user = res.data;
         _this2.eUser = _.cloneDeep(_this2.user);
         _this2.user.nickname = _this2.user.nickname == null ? _this2.user.username : _this2.user.nickname;

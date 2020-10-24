@@ -12,7 +12,8 @@
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 &nbsp;讀取中
             </template>
-            ・<a href="https://github.com/samuikaze/PCRedive-DataAPI">GitHub</a>
+            ・<a href="https://github.com/samuikaze/RinoStudyNotes" target="_blank">GitHub</a>
+            ・<a href="https://stats.uptimerobot.com/9OywPUmVrB" target="_blank">伺服器狀態</a>
         </div>
         <div class="justify-content-end text-right col-6 p-0">
             本站為個人架設，與 Cygames 、So-net Taiwan 無任何關係<br>站上或 API 中所提供的資料、商標其版權所有皆屬原版權持有者或提供者所有

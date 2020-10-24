@@ -23,5 +23,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/skill/types', 'Api\CharacterController@skillTypeList');
         Route::get('/cvs', 'Api\CharacterController@CVList');
         Route::get('/races', 'Api\CharacterController@raceList');
+        Route::get('/check/uptime', 'Api\SystemController@uptimeCheck');
     });
 });
