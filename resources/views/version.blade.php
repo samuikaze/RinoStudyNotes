@@ -87,7 +87,10 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">更新紀錄</h5>
-                <p class="card-text">下面會逐一列出本站改版的歷史紀錄，可以從 GitHub 取得更詳細的更新紀錄。</p>
+                <p class="card-text">
+                    下面會逐一列出本站改版的歷史紀錄，可以從 GitHub 取得更詳細的更新紀錄。<br>
+                    另本站使用 <a href="https://semver.org/lang/zh-TW/" class="text-dark" target="_blank"><strong>語意化版本 2.0.0</strong></a> 作為版本號碼的管理。
+                </p>
                 <div v-if="loading" class="h4 text-center pt-3">
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                     <span><strong>資料讀取中...</strong></span>

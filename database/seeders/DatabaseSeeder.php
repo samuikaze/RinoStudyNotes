@@ -111,9 +111,9 @@ class DatabaseSeeder extends Seeder
                         'updated_at' => Carbon::parse('2020-10-25 03:03:00'),
                     ], [
                         'version_id' => '0.0.10',
-                        'content' => json_encode(['調整登入與註冊方式為傳統 Form 方式傳送資料'], JSON_UNESCAPED_UNICODE),
-                        'created_at' => Carbon::parse('2020-10-25 03:03:00'),
-                        'updated_at' => Carbon::parse('2020-10-25 03:03:00'),
+                        'content' => json_encode(['調整登入與註冊方式為傳統 Form 方式傳送資料', '新增 env 設定可以調整是否顯示後台管理連結', '後台新增返回前台連結'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-25 23:16:00'),
+                        'updated_at' => Carbon::parse('2020-10-25 23:16:00'),
                     ],
                 ],
             ],

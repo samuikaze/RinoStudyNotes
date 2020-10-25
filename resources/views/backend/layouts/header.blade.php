@@ -57,6 +57,13 @@
                     <span v-if="user.status == 0" class="text-secondary">(審核中)</span>
                 </span>
                 &nbsp;&nbsp;
+                <a href="/" class="text-dark text-decoration-none">
+                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-front" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm5 10v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2v5a2 2 0 0 1-2 2H5z"/>
+                    </svg>&nbsp;&nbsp;
+                    返回前台
+                </a>
+                &nbsp;&nbsp;
                 <a href="/admin/logout" class="text-dark text-decoration-none" title="登出">
                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-lightning-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
@@ -72,6 +79,13 @@
             </svg>&nbsp;
             一般訪客
         </span>
+        &nbsp;&nbsp;
+        <a href="/" class="text-dark text-decoration-none">
+            <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-front" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2zm5 10v2a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2v5a2 2 0 0 1-2 2H5z"/>
+            </svg>&nbsp;&nbsp;
+            返回前台
+        </a>
     </div>
 
     <div class="modal fade" id="editUserData" tabindex="-1" aria-labelledby="editUserDataLabel" aria-hidden="true">
