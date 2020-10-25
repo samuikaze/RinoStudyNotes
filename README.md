@@ -65,7 +65,7 @@
     </IfModule>
     ```
 
-## 使用
+### 使用
 1. 後臺功能
     - 直接使用瀏覽器存取 `http://yourhostingurl/admin` 即可
     - 第一次安裝後如需登入管理員帳號請使用下面的帳號，並請登入後自行修改密碼
@@ -81,6 +81,8 @@
     X-Requested-With: XMLHttpRequest
     ```
     - API 路由[見網頁說明](https://samukaze.heliohost.us/api/all)
+### 版本管理
+- 本專案使用 [語意化版本 2.0.0](https://semver.org/lang/zh-TW/) 作為版本號碼的管理。
 
 ## 授權
 MIT License
