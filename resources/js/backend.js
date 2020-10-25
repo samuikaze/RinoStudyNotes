@@ -102,67 +102,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         event.target.disabled = false;
                     });
             },
-            fireLogout: function (authFailed = false) {
-                if (authFailed) {
-                    if (window.location.pathname.search('/admin/authentication') < 0) {
-                        let modal = `
-                        <div class="modal fade" id="authFailedModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="authFailedModalLabel">資訊</h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p class="text-center">
-                                            <span class="h5"><strong>登入期間已過期，請重新登入</strong></span><br>
-                                            <span id="redirector" class="text-secondary"></span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                        document.body.innerHTML = modal;
-                    }
-                } else {
-                    if (window.location.pathname.search('/admin/authentication') < 0) {
-                        let modal = `
-                        <div class="modal fade" id="authFailedModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="authFailedModalLabel">資訊</h5>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p class="text-center">
-                                            <span class="h5"><strong>登出中</strong></span><br>
-                                            <span id="redirector" class="text-secondary">系統正在將您重新導向至登入頁面...</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                        document.body.innerHTML = modal;
-                    }
-                }
-                $('#authFailedModal').on('shown.bs.modal', function () {
-                    axios.get('/admin/logout').then((res) => {
-                        Cookies.remove('token');
-                        if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-                            setTimeout(function () {
-                                document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
-                                window.location.href = '/admin/authentication';
-                            }, 1000);
-                        } else {
-                            window.location.href = '/admin/authentication';
-                        }
-                    }).catch((errors) => {
-                        alert(errors);
-                    });
-                });
-                $('#authFailedModal').modal('show');
-            }
         },
         created: function () {
             let token = Cookies.get('token');
@@ -177,8 +116,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                     this.user.nickname = (this.user.nickname == null) ? this.user.username : this.user.nickname;
                 })
                 .catch((errors) => {
-                    if (errors.response.status === 401) {
-                        this.fireLogout(true);
+                    if (errors.response.status === 401 && location.pathname != '/admin/authentication') {
+                        window.location.replace('/admin/logout');
                     }
                     this.user = [];
                 })

@@ -6,9 +6,12 @@
     <div class="card">
         <div class="card-body">
             <h2 class="card-title">API 清單</h2>
-            <p class="card-text">下面會以類型區分列出所有可以存取的 API 清單</p>
+            <p class="card-text">
+                下面會以類型區分列出所有可以存取的 API 清單<br>
+                目前還在建置中，故暫時不提供 API 存取，待後台及資料完成建置後才會啟用。
+            </p>
             <div id="api-list">
-                <h4>角色相關 API</h4>
+                {{-- <h4>角色相關 API</h4>
                 <div class="card">
                     <div class="card-header d-flex bg-secondary text-white p-2">
                         <div class="d-flex col-6 justify-content-start">
@@ -38,7 +41,7 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
