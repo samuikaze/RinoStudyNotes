@@ -109,6 +109,11 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['新增伺服器狀態檢查功能', '完成角色資料編輯', '完成版本資料增刪修', '網頁用 API 與公共 API 路由前綴拆分'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-25 03:03:00'),
                         'updated_at' => Carbon::parse('2020-10-25 03:03:00'),
+                    ], [
+                        'version_id' => '0.0.10',
+                        'content' => json_encode(['調整登入與註冊方式為傳統 Form 方式傳送資料'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2020-10-25 03:03:00'),
+                        'updated_at' => Carbon::parse('2020-10-25 03:03:00'),
                     ],
                 ],
             ],
