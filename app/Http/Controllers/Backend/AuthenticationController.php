@@ -72,10 +72,7 @@ class AuthenticationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->response
-                        ->setError($validator->errors()->first())
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
+            return $this->response->setErrorMsg($validator->errors()->first())->back();
         }
 
         User::create([
@@ -91,7 +88,7 @@ class AuthenticationController extends Controller
      * 登入
      *
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含登入用的帳號及密碼
-     * @return \Illuminate\Http\JsonResponse 登入成功或失敗的回應
+     * @return \Illuminate\http\RedirectResponse
      */
     public function login(Request $request)
     {
@@ -101,39 +98,46 @@ class AuthenticationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->response->setError($validator->errors()->first())->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
         }
 
         $user = User::where('username', $request->input('username'))->first();
 
         if (empty($user)) {
-            return $this->response->setError(self::LOGIN_ERROR)->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
         }
 
         $user = $user->makeVisible(['password']);
 
         if ($user->status == 2) {
-            return $this->response->setError('該帳號已被停權！')->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setErrorMsg('該帳號已被停權！')->back();
         }
 
         $auth = Auth::attempt($request->only('username', 'password'));
 
         if (!$auth) {
-            return $this->response->setError(self::LOGIN_ERROR)->setCode($this->response::BAD_REQUEST)->json();
+            return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
         }
 
         $token = $this->token->generateToken($user->id);
+        $cookie = cookie('token', $token, 120, null, null, false, false, false, 'lax');
 
         session()->put('user-token', $token);
 
         if ($user->username == 'administrator' && Hash::check('123', $user->password)) {
             return $this->response
-                        ->setHeaders(['Authorization' => 'Bearer ' . $token])
-                        ->setData('看來是第一次使用系統，請記得將密碼更改為比較安全的密碼！')
-                        ->json();
+                        ->setCookies([
+                            $cookie,
+                            cookie('securityWarn', '看起來是第一次使用系統，記得將密碼更改為較安全的密碼！')
+                        ])
+                        ->setRedirectTargetName('admin.index')
+                        ->redirect();
         }
 
-        return $this->response->setHeaders(['Authorization' => 'Bearer ' . $token])->json();
+        return $this->response
+                    ->setCookies([$cookie])
+                    ->setRedirectTargetName('admin.index')
+                    ->redirect();
     }
 
     /**
@@ -150,7 +154,7 @@ class AuthenticationController extends Controller
         Auth::logoutCurrentDevice();
         session()->regenerate();
 
-        return $this->response->json();
+        return $this->response->setRedirectTargetName('login')->setCookies([cookie()->forget('token')])->redirect();
     }
 
     /**

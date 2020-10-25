@@ -187,39 +187,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
           event.target.innerHTML = '儲存';
           event.target.disabled = false;
         });
-      },
-      fireLogout: function fireLogout() {
-        var authFailed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-        if (authFailed) {
-          if (window.location.pathname.search('/admin/authentication') < 0) {
-            var modal = "\n                        <div class=\"modal fade\" id=\"authFailedModal\" data-backdrop=\"static\" data-keyboard=\"false\" tabindex=\"-1\" aria-labelledby=\"staticBackdropLabel\" aria-hidden=\"true\">\n                            <div class=\"modal-dialog modal-dialog-centered\">\n                                <div class=\"modal-content\">\n                                    <div class=\"modal-header\">\n                                        <h5 class=\"modal-title\" id=\"authFailedModalLabel\">\u8CC7\u8A0A</h5>\n                                    </div>\n                                    <div class=\"modal-body\">\n                                        <p class=\"text-center\">\n                                            <span class=\"h5\"><strong>\u767B\u5165\u671F\u9593\u5DF2\u904E\u671F\uFF0C\u8ACB\u91CD\u65B0\u767B\u5165</strong></span><br>\n                                            <span id=\"redirector\" class=\"text-secondary\"></span>\n                                        </p>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                        ";
-            document.body.innerHTML = modal;
-          }
-        } else {
-          if (window.location.pathname.search('/admin/authentication') < 0) {
-            var _modal = "\n                        <div class=\"modal fade\" id=\"authFailedModal\" data-backdrop=\"static\" data-keyboard=\"false\" tabindex=\"-1\" aria-labelledby=\"staticBackdropLabel\" aria-hidden=\"true\">\n                            <div class=\"modal-dialog modal-dialog-centered\">\n                                <div class=\"modal-content\">\n                                    <div class=\"modal-header\">\n                                        <h5 class=\"modal-title\" id=\"authFailedModalLabel\">\u8CC7\u8A0A</h5>\n                                    </div>\n                                    <div class=\"modal-body\">\n                                        <p class=\"text-center\">\n                                            <span class=\"h5\"><strong>\u767B\u51FA\u4E2D</strong></span><br>\n                                            <span id=\"redirector\" class=\"text-secondary\">\u7CFB\u7D71\u6B63\u5728\u5C07\u60A8\u91CD\u65B0\u5C0E\u5411\u81F3\u767B\u5165\u9801\u9762...</span>\n                                        </p>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                        ";
-            document.body.innerHTML = _modal;
-          }
-        }
-
-        $('#authFailedModal').on('shown.bs.modal', function () {
-          axios.get('/admin/logout').then(function (res) {
-            Cookies.remove('token');
-
-            if (authFailed && window.location.pathname.search('/admin/authentication') < 0) {
-              setTimeout(function () {
-                document.getElementById('redirector').innerHTML = '系統正在將您重新導向至登入頁面...';
-                window.location.href = '/admin/authentication';
-              }, 1000);
-            } else {
-              window.location.href = '/admin/authentication';
-            }
-          })["catch"](function (errors) {
-            alert(errors);
-          });
-        });
-        $('#authFailedModal').modal('show');
       }
     },
     created: function created() {
@@ -236,8 +203,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
         _this2.eUser = _.cloneDeep(_this2.user);
         _this2.user.nickname = _this2.user.nickname == null ? _this2.user.username : _this2.user.nickname;
       })["catch"](function (errors) {
-        if (errors.response.status === 401) {
-          _this2.fireLogout(true);
+        if (errors.response.status === 401 && location.pathname != '/admin/authentication') {
+          window.location.replace('/admin/logout');
         }
 
         _this2.user = [];

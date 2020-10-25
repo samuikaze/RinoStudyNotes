@@ -5,7 +5,7 @@
 @section('content')
     <div class="jumbotron">
         <h1 class="display-4">璃乃學習筆記<span class="lead"> RinoStudyNotes</span></h1>
-        <p class="lead">這個網站用於輸出 JSON 格式的資料，方便需要取用超異域公主連結資料的相關應用程式可以利用。</p>
+        <p class="lead">此網站用於輸出 JSON 格式的資料，方便需要取用超異域公主連結資料的相關應用程式可以利用。</p>
         <hr class="my-4">
         <p>
             此網站目前為個人興趣所架設，與 Cygames 或 So-net 並無任何關係。<br>

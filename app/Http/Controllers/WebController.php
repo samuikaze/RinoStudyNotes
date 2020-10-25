@@ -11,21 +11,21 @@ class WebController extends Controller
 {
     /**
      * 回應
-     * 
+     *
      * @var \App\Services\ResponseService
      */
     protected $response;
 
     /**
      * LazyLoad 時單次請求取得的資料筆數
-     * 
+     *
      * @var int
      */
     protected $lazyload;
 
     /**
      * 建構函式
-     * 
+     *
      * @return void
      */
     public function __construct(
@@ -37,7 +37,7 @@ class WebController extends Controller
 
     /**
      * 取得目前版本號碼
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getVersionId()
@@ -49,7 +49,7 @@ class WebController extends Controller
 
     /**
      * 取得所有版本資訊（一次 10 筆）
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getAllVersions(Request $request)

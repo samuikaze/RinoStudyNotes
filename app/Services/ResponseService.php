@@ -58,6 +58,20 @@ class ResponseService
     protected $redirectTarget;
 
     /**
+     * Cookies
+     *
+     * @var array
+     */
+    protected $cookies;
+
+    /**
+     * 錯誤訊息 (Laravel Session)
+     *
+     * @var string
+     */
+    protected $errorMsg;
+
+    /**
      * 建構函式
      */
     public function __construct()
@@ -68,6 +82,8 @@ class ResponseService
         $this->headers = null;
         $this->view = null;
         $this->redirectTarget = null;
+        $this->cookies = null;
+        $this->errorMsg = null;
     }
 
     /**
@@ -174,6 +190,45 @@ class ResponseService
     }
 
     /**
+     * 設定重新導向目的地 (路由名稱)
+     *
+     * @param string $route
+     * @return $this
+     */
+    public function setRedirectTargetName(string $route)
+    {
+        $this->redirectTarget = route($route);
+
+        return $this;
+    }
+
+    /**
+     * 設定 Cookies
+     *
+     * @param array $cookies 多個 Cookies
+     * @return $this
+     */
+    public function setCookies(array $cookies)
+    {
+        $this->cookies = $cookies;
+
+        return $this;
+    }
+
+    /**
+     * 設定錯誤訊息 (Laravel Session)
+     *
+     * @param string $errors 錯誤訊息
+     * @return $this
+     */
+    public function setErrorMsg(string $errors)
+    {
+        $this->errorMsg = $errors;
+
+        return $this;
+    }
+
+    /**
      * 返回 JSON 格式回應
      *
      * @return \Illuminate\Http\JsonResponse JSON 回應
@@ -215,6 +270,12 @@ class ResponseService
     {
         $this->emptyValueProcessor();
 
+        if (!empty($this->cookies)) {
+            return redirect($this->redirectTarget, self::FOUND, $this->headers)->withCookies($this->cookies);
+        } elseif (!empty($this->errorMsg)) {
+            return redirect($this->redirectTarget, self::FOUND, $this->headers)->withErrors($this->errorMsg);
+        }
+
         return redirect($this->redirectTarget, self::FOUND, $this->headers);
     }
 
@@ -226,6 +287,12 @@ class ResponseService
     public function back()
     {
         $this->emptyValueProcessor();
+
+        if (!empty($this->cookies)) {
+            return redirect()->back(self::FOUND, $this->headers)->withCookies($this->cookies);
+        } elseif (!empty($this->errorMsg)) {
+            return redirect()->back(self::FOUND, $this->headers)->withErrors($this->errorMsg);
+        }
 
         return redirect()->back(self::FOUND, $this->headers);
     }

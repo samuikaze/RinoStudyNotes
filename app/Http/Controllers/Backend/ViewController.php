@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Services\ResponseService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ViewController extends Controller
