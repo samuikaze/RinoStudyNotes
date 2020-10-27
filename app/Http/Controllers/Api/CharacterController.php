@@ -9,6 +9,7 @@ use App\Models\CV;
 use App\Models\Guild;
 use App\Models\Race;
 use App\Models\SkillType;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,69 +47,91 @@ class CharacterController extends Controller
     /**
      * 以角色 ID 取得角色資料
      *
-     * @param \Illuminate\Http\Request $request HTTP 請求
+     * @param \Illuminate\Http\Request $request HTTP 請求，可用角色名稱、暱稱或 ID 當作搜尋條件
+     * @param string $search 搜尋字串
      * @return \Illuminate\Http\JsonResponse 角色資料
-     *
-     * @todo 未完成
      */
-    public function characterInfo(Request $request)
+    public function characterInfo(Request $request, string $search = null)
     {
-        if (!$request->has('nickname') && !$request->has('id') && !$request->has('tw_name') && !$request->has('jp_name')) {
-            return $this->response
-                        ->setError('沒有搜尋條件，無法取得角色資料')
-                        ->setCode($this->response::BAD_REQUEST)
-                        ->json();
+        // 先判斷是用哪種路由傳條件進來的
+        if (! is_null($search)) {
+            $condition = $search;
+        } else {
+            $condition = collect($request->all())->first();
         }
 
-        $validator = Validator::make($request->all(), [
-            'id' => ['nullable', 'numeric'],
-            'nickname' => ['nullable', 'string'],
-            'tw_name' => ['nullable', 'string'],
-            'jp_name' => ['nullable', 'string'],
+        // 驗證條件是否為空
+        $validator = Validator::make(['condition' => $condition], [
+            'condition' => ['required', 'min:1'],
         ]);
 
         if ($validator->fails()) {
             return $this->response
-                        ->setError('搜尋條件格式不正確，無法取得角色資料')
+                        ->setError('請確實傳入搜尋條件！')
                         ->setCode($this->response::BAD_REQUEST)
                         ->json();
         }
 
-        $condition = $request->all();
-
-        $key = array_keys($condition)[0];
-
-        if (in_array($key, ['id', 'tw_name', 'jp_name'])) {
-            $character = Character::select('id', 'guild_of', 'cv_of', 'race_of', 'tw_name', 'jp_name', 'description', 'ages', 'height', 'weight', 'blood_type', 'likes', 'birthday')
-                                  ->where($key, $condition[$key])
-                                  ->with([
-                                      'guild' => function ($q) {
-                                          $q->select('id', 'name');
-                                      },
-                                      'cv' => function ($q) {
-                                          $q->select('id', 'name');
-                                      },
-                                      'race' => function ($q) {
-                                          $q->select('id', 'name');
-                                      },
-                                      'nicknames' => function ($q) {
-                                          $q->select('id', 'character_of', 'nickname');
-                                      }
-                                  ])
-                                  ->first();
-            $character->likes = implode("\n", json_decode($character->likes));
-            $character->guild_of = $character->guild->name;
-            $character->race_of = $character->race->name;
-            $character->cv_of = $character->cv->name;
-            $character = (empty($character)) ? [] : $character->toArray();
-            $character['nicknames'] = implode("\n", collect($character['nicknames'])->pluck('nickname')->toArray());
-            unset($character['guild'], $character['race'], $character['cv']);
+        // 判斷是 ID 還是暱稱/名稱當條件
+        if (is_numeric($condition)) {
+            $type = 'id';
         } else {
-            $character = [];
+            $type = 'name';
         }
 
-        // return $character;
-        dd($character);
+        switch ($type) {
+            case 'id':
+                $character = Character::where('id', $condition)
+                                      ->with('guild', 'cv', 'race', 'nicknames', 'skills')
+                                      ->first();
+                break;
+            case 'name':
+                $character = Character::whereHas('nicknames', function ($q) use ($condition) {
+                    $q->where('nickname', $condition);
+                })->orWhere('tw_name', $condition)
+                  ->orWhere('jp_name', $condition)
+                  ->with('guild', 'cv', 'race', 'nicknames', 'skills')
+                  ->first();
+                break;
+        }
+
+        // 找不到就返回空資料
+        if (empty($character)) {
+            return $this->response->json();
+        }
+
+        // 處理技能資料
+        $skillTypes = SkillType::get();
+        $diff = $skillTypes->pluck('id')->diff($character->skills->pluck('skill_type_of')->toArray());
+        $skills = $character->skills->map(function ($skill) {
+            return collect($skill->toArray())->except(['created_at', 'updated_at'])->toArray();
+        })->toArray();
+
+        // 如果技能種類 ID 陣列和技能資料中的種類 ID 陣列對不起來就要把空資料推進集合裡
+        if (count($diff) > 0) {
+            foreach ($diff as $lack) {
+                $skills[] = [
+                    'skill_name' => null,
+                    'skill_type_of' => $skillTypes->where('id', $lack)->first()->name,
+                    'description' => null,
+                    'effect' => null,
+                ];
+            }
+        }
+        $character->likes = json_decode($character->likes);
+        $character->birthday = Carbon::parse($character->birthday)->toISOString(true);
+        $guild = $character->guild->name;
+        $cv = $character->cv->name;
+        $race = $character->race->name;
+        $nicknames = $character->nicknames->pluck('nickname');
+        $character = collect($character)->except(['guild_of', 'cv_of', 'race_of', 'created_at', 'updated_at'])->toArray();
+        $character['guild'] = $guild;
+        $character['cv'] = $cv;
+        $character['race'] = $race;
+        $character['skills'] = $skills;
+        $character['nicknames'] = $nicknames;
+
+        return $this->response->setData($character)->json();
     }
 
     /**

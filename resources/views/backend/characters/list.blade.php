@@ -242,11 +242,11 @@
                 },
                 mounted: function () {
                     let promises = [
-                        axios.get('/api/v1/characters'),
-                        axios.get('/api/v1/guilds'),
-                        axios.get('/api/v1/skill/types'),
-                        axios.get('/api/v1/cvs'),
-                        axios.get('/api/v1/races')
+                        axios.get('/webapi/characters'),
+                        axios.get('/webapi/guilds'),
+                        axios.get('/webapi/skill/types'),
+                        axios.get('/webapi/cvs'),
+                        axios.get('/webapi/races')
                     ];
 
                     Promise.all(promises).then((result) => {
