@@ -94,7 +94,7 @@ class ResponseService
     protected function emptyValueProcessor()
     {
         $this->code = (is_null($this->code)) ? self::OK : $this->code;
-        $this->data = (empty($this->data)) ? [] : $this->data;
+        $this->data = (empty($this->data)) ? null : $this->data;
         $this->errors = (empty($this->errors)) ? null : $this->errors;
         $this->headers = (empty($this->headers)) ? [] : $this->headers;
     }

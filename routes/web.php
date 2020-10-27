@@ -74,6 +74,12 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'webapi'], function () {
             Route::get('/user/verify', 'Backend\SystemConfigController@getVerifyUsers');
             // [後台] 取得角色資料
             Route::get('/admin/api/character/{id?}', 'Backend\CharacterController@characterInfo');
+            Route::get('/characters', 'Api\CharacterController@characterList');
+            Route::get('/character', 'Api\CharacterController@characterInfo');
+            Route::get('/guilds', 'Api\CharacterController@guildList');
+            Route::get('/skill/types', 'Api\CharacterController@skillTypeList');
+            Route::get('/cvs', 'Api\CharacterController@CVList');
+            Route::get('/races', 'Api\CharacterController@raceList');
         });
 
         // 會驗編輯權限的路由
