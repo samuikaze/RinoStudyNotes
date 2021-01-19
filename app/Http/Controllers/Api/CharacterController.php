@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\ResponseService;
-use App\Models\Character;
-use App\Models\CV;
-use App\Models\Guild;
-use App\Models\Race;
-use App\Models\SkillType;
+use App\Models\{
+    Character,
+    CV,
+    Guild,
+    Race,
+    SkillType,
+    SpecialWeapon
+};
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -180,5 +183,228 @@ class CharacterController extends Controller
         $races = Race::select('id', 'name')->get();
 
         return $this->response->setData($races)->json();
+    }
+
+    /**
+     * 取得專用武器清單
+     *
+     * @return \Illuminate\Http\JsonResponse 所有專用武器清單
+     */
+    public function specialWeaponList()
+    {
+        $specialWeapons = SpecialWeapon::select('id', 'name')->get();
+
+        return $this->response->setData($specialWeapons)->json();
+    }
+
+    /**
+     * 取得指定的專用武器資料
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getSpecialWeaponInfo(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'numeric'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError($validator->errors()->first())
+                        ->setCode(400)
+                        ->json();
+        }
+
+        $data = SpecialWeapon::select('id', 'name', 'description', 'ability', 'apply_time AS apply')->where('id', $request->input('id'))->first();
+
+        if (is_null($data)) {
+            return $this->response
+                        ->setData([])
+                        ->json();
+        }
+
+        // 處理能力資料
+        $abilities = json_decode($data->ability, true);
+        $resultAbilities = '';
+        $times = 0;
+        foreach ($abilities as $level => $ability) {
+            $resultAbilities .= $level.'=';
+
+            $innerTimes = 0;
+            foreach ($ability as $abName => $values) {
+                $resultAbilities .= $abName.':'
+                                 .trim(explode('(', $values)[0]).'>'
+                                 .str_replace(')', '', explode('(', $values)[1]);
+
+                if ($innerTimes != count($ability) - 1) {
+                    $resultAbilities .= "|";
+                }
+
+                $innerTimes++;
+            }
+            if ($times != count($abilities) - 1) {
+                $resultAbilities .= ",\n";
+            }
+
+            $times++;
+        }
+
+        $data->ability = $resultAbilities;
+
+        return $this->response->setData($data)->json();
+    }
+
+    /**
+     * 新增專用武器資料
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addSpecialWeapon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:20'],
+            'description' => ['required', 'string', 'max:255'],
+            'ability' => ['required', 'string'],
+            'apply' => ['nullable', 'date'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError($validator->errors()->first())
+                        ->setCode(400)
+                        ->json();
+        }
+
+        // 處理能力資料
+        $tmpAbilities = explode(',', preg_replace( "/\r|\n/", '', $request->input('ability')));
+        $abilities = [];
+        foreach ($tmpAbilities as $tmpAbility) {
+            // 沒有等號
+            if (stripos($tmpAbility, '=') === false) {
+                return $this->response
+                            ->setError('專武能力格式錯誤，請再次確認後再送出')
+                            ->setCode(400)
+                            ->json();
+                break;
+            }
+
+            // 等級值
+            $key = explode('=', $tmpAbility)[0];
+            // 各能力值
+            $values = explode('|', explode('=', $tmpAbility)[1]);
+            // 處理後的資料
+            $tmpValue = [];
+            foreach ($values as $value) {
+                // 加成能力名稱
+                $vKey = explode(':', $value)[0];
+                // 加成值
+                $vValues = explode('>', explode(':', $value)[1]);
+                $vValues = $vValues[0].' ('.$vValues[1].')';
+                // 寫入處理後資料
+                $tmpValue[$vKey] = $vValues;
+                unset($vKey, $vValues);
+            }
+            // 寫回陣列
+            $abilities[$key] = $tmpValue;
+            unset($values, $tmpValue);
+        }
+
+        // 處理開專時間
+        if (is_null($request->input('apply')) || strlen($request->input('apply')) == 0) {
+            $applyTime = null;
+        } else {
+            $applyTime = $request->input('apply');
+        }
+
+        SpecialWeapon::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'ability' => json_encode($abilities, JSON_UNESCAPED_UNICODE),
+            'apply_time' => $applyTime,
+        ]);
+
+        return $this->specialWeaponList();
+    }
+
+    /**
+     * 編輯專用武器資料
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function editSpecialWeapon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'numeric'],
+            'name' => ['required', 'string', 'max:20'],
+            'description' => ['required', 'string', 'max:255'],
+            'ability' => ['required', 'string'],
+            'apply' => ['nullable', 'date'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->response
+                        ->setError($validator->errors()->first())
+                        ->setCode(400)
+                        ->json();
+        }
+
+        if (is_null(SpecialWeapon::where('id', $request->input('id'))->first())) {
+            return $this->response
+                        ->setError('找不到該專用武器，請再次確認後再行送出')
+                        ->setCode(400)
+                        ->json();
+        }
+
+        // 處理能力資料
+        $tmpAbilities = explode(',', preg_replace( "/\r|\n/", '', $request->input('ability')));
+        $abilities = [];
+        foreach ($tmpAbilities as $tmpAbility) {
+            // 沒有等號
+            if (stripos($tmpAbility, '=') === false) {
+                return $this->response
+                            ->setError('專武能力格式錯誤，請再次確認後再送出')
+                            ->json();
+                break;
+            }
+
+            // 等級值
+            $key = explode('=', $tmpAbility)[0];
+            // 各能力值
+            $values = explode('|', explode('=', $tmpAbility)[1]);
+            // 處理後的資料
+            $tmpValue = [];
+            foreach ($values as $value) {
+                // 加成能力名稱
+                $vKey = explode(':', $value)[0];
+                // 加成值
+                $vValues = explode('>', explode(':', $value)[1]);
+                $vValues = $vValues[0].' ('.$vValues[1].')';
+                // 寫入處理後資料
+                $tmpValue[$vKey] = $vValues;
+                unset($vKey, $vValues);
+            }
+            // 寫回陣列
+            $abilities[$key] = $tmpValue;
+            unset($values, $tmpValue);
+        }
+
+        // 處理開專時間
+        if (is_null($request->input('apply')) || strlen($request->input('apply')) == 0) {
+            $applyTime = null;
+        } else {
+            $applyTime = $request->input('apply');
+        }
+
+        SpecialWeapon::where('id', $request->input('id'))->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'ability' => json_encode($abilities, JSON_UNESCAPED_UNICODE),
+            'apply_time' => $applyTime,
+        ]);
+
+        return $this->specialWeaponList();
     }
 }

@@ -37,6 +37,8 @@ Route::group(['prefix' => 'admin'], function () {
             Route::get('/character', 'Backend\ViewController@characterList');
             // 角色關聯的資料管理
             Route::get('/character/related', 'Backend\ViewController@characterRelatedData');
+            // 角色專用武器管理
+            Route::get('/character/specialweapon', 'Backend\ViewController@characterSpecialWeapon');
         });
 
         // 僅有管理員可以存取的路由
@@ -80,6 +82,8 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'webapi'], function () {
             Route::get('/skill/types', 'Api\CharacterController@skillTypeList');
             Route::get('/cvs', 'Api\CharacterController@CVList');
             Route::get('/races', 'Api\CharacterController@raceList');
+            Route::get('/specialweapons', 'Api\CharacterController@specialWeaponList');
+            Route::get('/specialweapon', 'Api\CharacterController@getSpecialWeaponInfo');
         });
 
         // 會驗編輯權限的路由
@@ -92,6 +96,10 @@ Route::group(['as' => 'webadmin.', 'prefix' => 'webapi'], function () {
             Route::post('/character/{data?}', 'Backend\CharacterController@addRelatedData');
             // 編輯聲優、公會、種族、技能種類資料
             Route::patch('/character/{data?}', 'Backend\CharacterController@editRelatedData');
+            // 新增專用武器資料
+            Route::post('/specialweapon', 'Api\CharacterController@addSpecialWeapon');
+            // 編輯專用武器資料
+            Route::patch('/specialweapon', 'Api\CharacterController@editSpecialWeapon');
         });
 
         // 僅有管理員可存取的路由

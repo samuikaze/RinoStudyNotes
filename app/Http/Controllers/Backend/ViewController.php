@@ -70,6 +70,16 @@ class ViewController extends Controller
     }
 
     /**
+     * 角色專用武器管理
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
+     */
+    public function characterSpecialWeapon()
+    {
+        return $this->response->setView('backend.characters.specialweapon')->view();
+    }
+
+    /**
      * 審核申請
      *
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory 視圖
