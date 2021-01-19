@@ -51,6 +51,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       name: '角色雜項資料',
                       route: '/admin/character/related',
                     },
+                    {
+                      id: 3,
+                      name: '角色專用武器',
+                      route: '/admin/character/specialweapon',
+                    },
                   ]
                 }
             ],

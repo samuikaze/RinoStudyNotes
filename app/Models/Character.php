@@ -25,6 +25,7 @@ class Character extends Model
         'guild_of',
         'cv_of',
         'race_of',
+        'special_weapon_of',
         'tw_name',
         'jp_name',
         's_image_url',
@@ -97,5 +98,15 @@ class Character extends Model
     public function race()
     {
         return $this->hasOne(Race::class, 'id', 'race_of');
+    }
+
+    /**
+     * 關聯 special_weapons 資料表
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function special_weapon()
+    {
+        return $this->hasOne(SpecialWeapon::class, 'id', 'special_weapon_of');
     }
 }

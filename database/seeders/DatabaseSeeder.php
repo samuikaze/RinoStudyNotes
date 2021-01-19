@@ -119,7 +119,12 @@ class DatabaseSeeder extends Seeder
                         'content' => json_encode(['網頁與公共 API 完全拆分', 'API 清單頁面排版', '調整空資料時的返回資料型態'], JSON_UNESCAPED_UNICODE),
                         'created_at' => Carbon::parse('2020-10-28 01:36:00'),
                         'updated_at' => Carbon::parse('2020-10-28 01:36:00'),
-                    ],
+                    ], [
+                        'version_id' => '0.0.12',
+                        'content' => json_encode(['加入專武功能（尚未處理角色資料編輯）'], JSON_UNESCAPED_UNICODE),
+                        'created_at' => Carbon::parse('2021-01-20 01:57:00'),
+                        'updated_at' => Carbon::parse('2021-01-20 01:57:00'),
+                    ]
                 ],
             ],
         ];

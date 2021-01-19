@@ -18,6 +18,7 @@ class CreateCharactersTable extends Migration
             $table->integer('guild_of')->comment('公會');
             $table->integer('cv_of')->comment('聲優');
             $table->integer('race_of')->comment('種族');
+            $table->integer('special_weapon_of')->nullable()->comment('專用武器');
             $table->string('tw_name', 10)->comment('角色中文名稱');
             $table->string('jp_name', 15)->comment('角色日文名稱');
             $table->string('s_image_url', 100)->nullable()->comment('角色小圖片網址');
