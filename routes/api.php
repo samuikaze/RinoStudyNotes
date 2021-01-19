@@ -20,5 +20,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/check/uptime', 'Api\SystemController@uptimeCheck');
         Route::get('/character', 'Api\CharacterController@characterInfo');
         Route::get('/character/{search?}', 'Api\CharacterController@characterInfo');
+        Route::get('/specialweapons', 'Api\CharacterController@specialWeaponList');
     });
 });
