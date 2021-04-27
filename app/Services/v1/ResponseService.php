@@ -1,19 +1,24 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\v1;
 
 class ResponseService
 {
     const OK = 200;
+    const NO_CONTENT = 204;
+    const MOVED_PERMANENTLY = 301;
     const FOUND = 302;
+    const NOT_MODIFIED = 304;
     const BAD_REQUEST = 400;
     const UNAUTHORIZED = 401;
     const FORBIDDEN = 403;
     const NOT_FOUND = 404;
     const METHOD_NOT_ALLOW = 405;
+    const UNPROCESSABLE_ENTITY = 422;
     const INTERNAL_SERVER_ERROR = 500;
     const BAD_GATEWAY = 502;
     const SERVICE_UNAVAILABLE = 503;
+    const GATEWAY_TIMEOUT = 504;
 
     /**
      * 回應碼
@@ -197,7 +202,7 @@ class ResponseService
      */
     public function setRedirectTargetName(string $route)
     {
-        $this->redirectTarget = route($route);
+        $this->redirectTarget = $route;
 
         return $this;
     }
@@ -271,12 +276,12 @@ class ResponseService
         $this->emptyValueProcessor();
 
         if (!empty($this->cookies)) {
-            return redirect($this->redirectTarget, self::FOUND, $this->headers)->withCookies($this->cookies);
+            return redirect(route($this->redirectTarget), self::FOUND, $this->headers)->withCookies($this->cookies);
         } elseif (!empty($this->errorMsg)) {
-            return redirect($this->redirectTarget, self::FOUND, $this->headers)->withErrors($this->errorMsg);
+            return redirect(route($this->redirectTarget), self::FOUND, $this->headers)->withErrors($this->errorMsg);
         }
 
-        return redirect($this->redirectTarget, self::FOUND, $this->headers);
+        return redirect(route($this->redirectTarget), self::FOUND, $this->headers);
     }
 
     /**

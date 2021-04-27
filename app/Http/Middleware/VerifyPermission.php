@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Role;
-use App\Services\ResponseService;
+use App\Services\v1\ResponseService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

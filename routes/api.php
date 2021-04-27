@@ -13,13 +13,14 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::group(['prefix' => 'v1'], function () {
-    // 公共 API
-    Route::group(['as' => 'publicapi'], function () {
-        Route::get('/check/uptime', 'Api\SystemController@uptimeCheck');
-        Route::get('/character', 'Api\CharacterController@characterInfo');
-        Route::get('/character/{search?}', 'Api\CharacterController@characterInfo');
-        Route::get('/specialweapons', 'Api\CharacterController@specialWeaponList');
+Route::group(['namespace' => 'v1'], function () {
+    Route::group(['prefix' => 'v1'], function () {
+        // 公共 API
+        Route::group(['as' => 'publicapi'], function () {
+            Route::get('/check/uptime', 'Api\SystemController@uptimeCheck');
+            Route::get('/character', 'Api\CharacterController@characterInfo');
+            Route::get('/character/{search?}', 'Api\CharacterController@characterInfo');
+            Route::get('/specialweapons', 'Api\CharacterController@specialWeaponList');
+        });
     });
 });

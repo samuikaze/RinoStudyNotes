@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\v1\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\ResponseService;
-use Illuminate\Http\Request;
+use App\Services\v1\ResponseService;
 
 class SystemController extends Controller
 {

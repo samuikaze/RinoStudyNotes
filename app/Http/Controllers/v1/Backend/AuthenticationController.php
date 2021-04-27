@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers\v1\Backend;
 
+use App\Exceptions\AuthenticationException;
+use App\Exceptions\DatabaseException;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\BearerTokenService;
-use App\Services\ResponseService;
+use App\Services\v1\AuthenticationService;
+use App\Services\v1\ResponseService;
+use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -18,6 +18,7 @@ class AuthenticationController extends Controller
     use AuthenticatesUsers;
 
     const LOGIN_ERROR = '帳號或密碼不正確';
+
     /**
      * 回應
      *
@@ -28,7 +29,7 @@ class AuthenticationController extends Controller
     /**
      * 權杖
      *
-     * @var \App\Services\BearerTokenService
+     * @var \App\Services\AuthenticationService
      */
     protected $token;
 
@@ -38,7 +39,7 @@ class AuthenticationController extends Controller
      * @return void
      */
     public function __construct(
-        BearerTokenService $token,
+        AuthenticationService $token,
         ResponseService $response
     ) {
         $this->token = $token;
@@ -59,7 +60,7 @@ class AuthenticationController extends Controller
      * 註冊
      *
      * @param \Illuminate\Http\Request $request HTTP 請求，應當包含註冊用的帳號及密碼
-     * @return \Illuminate\Http\JsonResponse 註冊成功或失敗的回應
+     * @return \Illuminate\http\RedirectResponse 註冊重新導向的回應
      */
     public function register(Request $request)
     {
@@ -72,14 +73,23 @@ class AuthenticationController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->response->setErrorMsg($validator->errors()->first())->back();
+            return $this->response
+                        ->setErrorMsg($validator->errors()->first())
+                        ->back();
         }
 
-        User::create([
-            'username' => $request->input('username'),
-            'password' => Hash::make($request->input('password')),
-            'nickname' => (is_null($request->input('nickname'))) ? $request->input('username') : $request->input('nickname'),
-        ]);
+        try {
+            $this->token->registerUser(
+                $request->input('username'),
+                $request->input('password'),
+                $request->input('nickname')
+            );
+        } catch (Exception $e) {
+            $this->response
+                ->setErrorMsg('註冊失敗，請重新註冊')
+                ->back();
+        }
+
 
         return $this->login($request);
     }
@@ -101,38 +111,24 @@ class AuthenticationController extends Controller
             return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
         }
 
-        $user = User::where('username', $request->input('username'))->first();
+        $auth = $this->token->login(
+            $request->only('username', 'password')
+        );
 
-        if (empty($user)) {
+        if ($auth === false) {
             return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
         }
 
-        $user = $user->makeVisible(['password']);
-
-        if ($user->status == 2) {
-            return $this->response->setErrorMsg('該帳號已被停權！')->back();
-        }
-
-        $auth = Auth::attempt($request->only('username', 'password'));
-
-        if (!$auth) {
-            return $this->response->setErrorMsg(self::LOGIN_ERROR)->back();
-        }
-
-        $token = $this->token->generateToken($user->id);
-        $cookie = cookie('token', $token, 120, null, null, false, false, false, 'lax');
-
-        session()->put('user-token', $token);
-
-        if ($user->username == 'administrator' && Hash::check('123', $user->password)) {
+        try {
+            $token = $this->token->generateToken($auth);
+        } catch (DatabaseException $e) {
+            $this->token->logout();
             return $this->response
-                        ->setCookies([
-                            $cookie,
-                            cookie('securityWarn', '看起來是第一次使用系統，記得將密碼更改為較安全的密碼！')
-                        ])
-                        ->setRedirectTargetName('admin.index')
-                        ->redirect();
+                        ->setErrorMsg('產生權杖失敗，請重新登入')
+                        ->back();
         }
+
+        $cookie = cookie('token', $token, 120, null, null, false, false, false, 'lax');
 
         return $this->response
                     ->setCookies([$cookie])
@@ -147,14 +143,18 @@ class AuthenticationController extends Controller
      */
     public function logout()
     {
-        $token = session()->get('user-token');
+        try {
+            $this->token->logout();
+        } catch (DatabaseException $e) {
+            return $this->response
+                        ->setErrorMsg('登出失敗，請重新登出一次')
+                        ->back();
+        }
 
-        $this->token->removeToken($token);
-
-        Auth::logoutCurrentDevice();
-        session()->regenerate();
-
-        return $this->response->setRedirectTargetName('login')->setCookies([cookie()->forget('token')])->redirect();
+        return $this->response
+                    ->setRedirectTargetName('login')
+                    ->setCookies([cookie()->forget('token')])
+                    ->redirect();
     }
 
     /**
@@ -170,11 +170,11 @@ class AuthenticationController extends Controller
         $verify = $this->token->verifyToken($token);
 
         if ($verify !== false) {
-            $user = User::where('id', $verify)->first()->toArray();
+            $user = $this->token->retrievingUserInfo($verify);
 
-            $this->token->extendExpireTime($token);
-
-            return $this->response->setData($user)->json();
+            if ($user !== false) {
+                return $this->response->setData($user)->json();
+            }
         }
 
         return $this->response->json();
@@ -201,39 +201,20 @@ class AuthenticationController extends Controller
                         ->json();
         }
 
-        if ($request->has('newPswd')) {
-            $user = User::where('id', Auth::user()->id)
-                        ->first();
-
-            if (empty($user)) {
-                return $this->response
-                            ->setError('找不到此使用者名稱')
-                            ->setCode(400)
-                            ->json();
-            } else {
-                $user = $user->makeVisible(['password']);
-            }
-
-            if (! Hash::check($request->input('origPswd'), $user->password)) {
-                return $this->response
-                            ->setError('密碼不正確')
-                            ->setCode(400)
-                            ->json();
-            }
-
-            User::where('id', Auth::user()->id)->update([
-                'nickname' => $request->input('nickname'),
-                'password' => Hash::make($request->input('newPswd')),
-            ]);
+        try {
+            $newUser = $this->token->editProfile($request->all());
+        } catch (AuthenticationException $e) {
+            return $this->response
+                        ->setError($e->getMessage())
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
+        } catch (Exception $e) {
+            return $this->response
+                        ->setError('更新資料失敗，請再試一次')
+                        ->setCode($this->response::NOT_MODIFIED)
+                        ->json();
         }
 
-        User::where('id', Auth::user()->id)->update([
-            'nickname' => $request->input('nickname'),
-        ]);
-
-        $user = $request->input('user');
-        $user['nickname'] = $request->input('nickname');
-
-        return $this->response->setData($user)->json();
+        return $this->response->setData($newUser)->json();
     }
 }
