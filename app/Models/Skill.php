@@ -23,6 +23,7 @@ class Skill extends Model
      */
     protected $fillable = [
         'character_of',
+        'skill_name',
         'skill_type_of',
         'description',
         'effect',

@@ -1,13 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers\v1\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Services\ResponseService;
-use Illuminate\Support\Facades\Auth;
+use App\Services\v1\AuthenticationService;
+use App\Services\v1\ResponseService;
 
 class ViewController extends Controller
 {
+    /**
+     * Authentication Service
+     *
+     * @var \App\Services\AuthenticationService
+     */
+    protected $auth;
+
     /**
      * 回應
      *
@@ -18,10 +25,13 @@ class ViewController extends Controller
     /**
      * 建構函式
      *
+     * @param \App\Services\AuthenticationService $auth
+     * @param \App\Services\ResponseService $response
      * @return void
      */
-    public function __construct(ResponseService $response)
+    public function __construct(AuthenticationService $auth, ResponseService $response)
     {
+        $this->auth = $auth;
         $this->response = $response;
     }
 
@@ -42,7 +52,7 @@ class ViewController extends Controller
      */
     public function login()
     {
-        if (!Auth::check()) {
+        if (! $this->auth->verifyAuthStatus()) {
             return $this->response->setView('backend.login')->view();
         } else {
             return $this->response->setRedirectTarget(route('admin.index'))->redirect();

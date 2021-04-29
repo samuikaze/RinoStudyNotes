@@ -1,17 +1,23 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers\v1\Backend;
 
+use App\Exceptions\NoResultException;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\Version;
-use App\Services\ResponseService;
+use App\Services\v1\ResponseService;
+use App\Services\v1\SystemVarService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class SystemConfigController extends Controller
+class SystemVarController extends Controller
 {
+    /**
+     * System Var Service
+     *
+     * @var \App\Services\SystemVarService
+     */
+    protected $sysvar;
+
     /**
      * 回應
      *
@@ -22,10 +28,15 @@ class SystemConfigController extends Controller
     /**
      * 建構函式
      *
+     * @param \App\Services\SystemVarService $sysvar
+     * @param \App\Services\ResponseService $response
      * @return void
      */
-    public function __construct(ResponseService $response)
-    {
+    public function __construct(
+        SystemVarService $sysvar,
+        ResponseService $response
+    ) {
+        $this->sysvar = $sysvar;
         $this->response = $response;
     }
 
@@ -36,13 +47,7 @@ class SystemConfigController extends Controller
      */
     public function getVerifyUsers()
     {
-        $verifying = User::where('status', 0)->get()->toArray();
-        $verified = User::where('status', '!=', 0)->where('id', '!=', 1)->get()->toArray();
-
-        $users = [
-            'verifying' => $verifying,
-            'verified' => $verified,
-        ];
+        $users = $this->sysvar->getVerifyUsers();
 
         return $this->response->setData($users)->json();
     }
@@ -67,20 +72,7 @@ class SystemConfigController extends Controller
                         ->json();
         }
 
-        switch ($request->input('type')) {
-            case 'accept':
-                User::where('id', $request->input('id'))->update([
-                    'role_of' => 3,
-                    'status' => 1,
-                ]);
-                break;
-            case 'denied':
-                User::where('id', $request->input('id'))->update([
-                    'role_of' => 2,
-                    'status' => 1,
-                ]);
-                break;
-        }
+        $this->sysvar->verifyUser($request->input('type'), $request->input('id'));
 
         return $this->response->json();
     }
@@ -105,18 +97,7 @@ class SystemConfigController extends Controller
                         ->json();
         }
 
-        switch ($request->input('type')) {
-            case 'enable':
-                User::where('id', $request->input('id'))->update([
-                    'status' => 1,
-                ]);
-                break;
-            case 'disable':
-                User::where('id', $request->input('id'))->update([
-                    'status' => 2,
-                ]);
-                break;
-        }
+        $this->sysvar->adminAccount($request->input('type'), $request->input('id'));
 
         return $this->response->json();
     }
@@ -136,15 +117,16 @@ class SystemConfigController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->response->setError('請確認是否所有欄位都已填實')->setCode(400)->json();
+            return $this->response
+                        ->setError('請確認是否所有欄位都已填實')
+                        ->setCode($this->response::BAD_REQUEST)
+                        ->json();
         }
 
-        $id = Version::create([
-            'version_id' => $request->input('version_id'),
-            'content' => json_encode($request->input('content'), JSON_UNESCAPED_UNICODE),
-        ]);
-
-        $id = $id->id;
+        $id = $this->sysvar->addVersion(
+            $request->input('version_id'),
+            $request->input('content')
+        );
 
         return $this->response->setData($id)->json();
     }
@@ -168,14 +150,18 @@ class SystemConfigController extends Controller
             return $this->response->setError('請確認所有欄位是否皆已填實')->setCode(400)->json();
         }
 
-        if (empty(Version::where('id', $request->input('id'))->first())) {
-            return $this->response->setError('找不到該版本資料，請再次確認您的資料是否正確')->setCode(400)->json();
+        try {
+            $this->sysvar->editVersion(
+                $request->input('id'),
+                $request->input('version_id'),
+                $request->input('content')
+            );
+        } catch (NoResultException $e) {
+            return $this->response
+                        ->setCode($this->response::NOT_MODIFIED)
+                        ->setErrorMsg($e->getMessage())
+                        ->json();
         }
-
-        Version::where('id', $request->input('id'))->update([
-            'version_id' => $request->input('version_id'),
-            'content' => json_encode($request->input('content'), JSON_UNESCAPED_UNICODE),
-        ]);
 
         return $this->response->json();
     }
@@ -196,12 +182,14 @@ class SystemConfigController extends Controller
             return $this->response->setError('請確實傳送 ID 值')->setCode(400)->json();
         }
 
-        if (empty(Version::where('id', $request->input('id'))->first())) {
-            return $this->response->setError('找不到該版本資料，請再次確認 ID 值是否正確')->setCode(400)->json();
+        try {
+            $this->sysvar->deleteVersion($request->input('id'));
+        } catch (NoResultException $e) {
+            return $this->response
+                        ->setCode($this->response::NOT_MODIFIED)
+                        ->setErrorMsg($e->getMessage())
+                        ->json();
         }
-
-        Version::where('id', $request->input('id'))->delete();
-        DB::select('ALTER TABLE `versions` AUTO_INCREMENT = '.$request->input('id').';');
 
         return $this->response->json();
     }

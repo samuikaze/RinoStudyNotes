@@ -191,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
           event.target.innerHTML = '儲存';
           event.target.disabled = false;
         });
+      },
+      fireLogout: function fireLogout() {
+        window.location.href = '/admin/logout';
       }
     },
     created: function created() {

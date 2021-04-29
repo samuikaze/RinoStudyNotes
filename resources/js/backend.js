@@ -107,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
                         event.target.disabled = false;
                     });
             },
+            fireLogout: function() {
+                window.location.href = '/admin/logout';
+            }
         },
         created: function () {
             let token = Cookies.get('token');

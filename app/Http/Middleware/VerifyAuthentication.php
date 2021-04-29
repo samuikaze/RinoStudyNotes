@@ -2,12 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
-use App\Services\BearerTokenService;
-use App\Services\ResponseService;
+use App\Services\v1\AuthenticationService;
+use App\Services\v1\ResponseService;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class VerifyAuthentication
 {
@@ -21,7 +19,7 @@ class VerifyAuthentication
     /**
      * 權杖
      *
-     * @var \App\Services\BearerTokenService
+     * @var \App\Services\AuthenticationService
      */
     protected $token;
 
@@ -31,7 +29,7 @@ class VerifyAuthentication
      * @return void
      */
     public function __construct(
-        BearerTokenService $token,
+        AuthenticationService $token,
         ResponseService $response
     ) {
         $this->response = $response;
@@ -52,37 +50,45 @@ class VerifyAuthentication
             $token = $request->bearerToken();
 
             if (empty($token)) {
-                return $this->response->setError('Access Denied')->setCode($this->response::FORBIDDEN)->json();
+                return $this->response
+                            ->setError('Access Denied')
+                            ->setCode($this->response::FORBIDDEN)
+                            ->json();
             }
 
             $verify = $this->token->verifyToken($token);
 
             if ($verify === false) {
-                return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
+                $this->token->logout();
+                return $this->response
+                            ->setError('Unauthorized')
+                            ->setCode($this->response::UNAUTHORIZED)
+                            ->json();
             }
 
-            $user = User::where('id', $verify)->first();
+            $user = $this->token->retrievingUserInfo($verify);
 
-            if (empty($user) || $user->status == 2) {
-                Auth::logoutCurrentDevice();
-                session()->regenerate();
-                return $this->response->setError('Unauthorized')->setCode($this->response::UNAUTHORIZED)->json();
+            if ($user === false || $user->status == 2) {
+                $this->token->logout();
+                return $this->response
+                            ->setError('Unauthorized')
+                            ->setCode($this->response::UNAUTHORIZED)
+                            ->json();
             }
 
             return $next($request);
         }
         // 如果是瀏覽器
         else {
-            if (Auth::check()) {
-                // 被停權
-                if (Auth::user()->status == 2) {
-                    return $this->response->setRedirectTarget(route('logout'))->redirect();
-                }
+            $authCheck = $this->token->verifyAuthStatus();
+            if ($authCheck) {
+                // 若有登入就在瀏覽器首次發起請求時延長使用者權杖的生命週期
+                $this->token->extendExpireTime(session()->get('user-token'));
 
                 return $next($request);
             }
-
-            return $this->response->setRedirectTarget(route('login'))->redirect();
+            $this->token->logout();
+            return $this->response->setRedirectTarget('login')->redirect();
         }
     }
 }
