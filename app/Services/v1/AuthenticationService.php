@@ -17,7 +17,7 @@ class AuthenticationService
     /**
      * 驗證儲存庫
      *
-     * @var \App\Repositories\AuthenticationRepository
+     * @var \App\Repositories\v1\AuthenticationRepository
      */
     protected $auth;
 

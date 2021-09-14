@@ -13,7 +13,7 @@ class CharacterService
     /**
      * CharacterRepository
      *
-     * @var \App\Repositories\CharacterRepository
+     * @var \App\Repositories\v1\CharacterRepository
      */
     protected $character;
 
