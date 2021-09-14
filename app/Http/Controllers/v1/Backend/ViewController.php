@@ -11,22 +11,22 @@ class ViewController extends Controller
     /**
      * Authentication Service
      *
-     * @var \App\Services\AuthenticationService
+     * @var \App\Services\v1\AuthenticationService
      */
     protected $auth;
 
     /**
      * 回應
      *
-     * @var \App\Services\ResponseService
+     * @var \App\Services\v1\ResponseService
      */
     protected $response;
 
     /**
      * 建構函式
      *
-     * @param \App\Services\AuthenticationService $auth
-     * @param \App\Services\ResponseService $response
+     * @param \App\Services\v1\AuthenticationService $auth
+     * @param \App\Services\v1\ResponseService $response
      * @return void
      */
     public function __construct(AuthenticationService $auth, ResponseService $response)

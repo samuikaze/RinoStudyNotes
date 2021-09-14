@@ -13,14 +13,14 @@ class CharacterController extends Controller
     /**
      * 角色服務
      *
-     * @var \App\Services\CharacterService
+     * @var \App\Services\v1\CharacterService
      */
     protected $character;
 
     /**
      * 回應
      *
-     * @var \App\Services\ResponseService
+     * @var \App\Services\v1\ResponseService
      */
     protected $response;
 

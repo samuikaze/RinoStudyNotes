@@ -12,14 +12,14 @@ class VerifyAuthentication
     /**
      * 回應
      *
-     * @var \App\Services\ResponseService
+     * @var \App\Services\v1\ResponseService
      */
     protected $response;
 
     /**
      * 權杖
      *
-     * @var \App\Services\AuthenticationService
+     * @var \App\Services\v1\AuthenticationService
      */
     protected $token;
 

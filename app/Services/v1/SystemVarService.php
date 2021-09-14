@@ -10,7 +10,7 @@ class SystemVarService
     /**
      * Version 儲存庫
      *
-     * @var \App\Repositories\SystemVarRepository
+     * @var \App\Repositories\v1\SystemVarRepository
      */
     protected $sysvar;
 

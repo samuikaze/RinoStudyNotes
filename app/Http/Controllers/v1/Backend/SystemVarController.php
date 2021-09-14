@@ -14,22 +14,22 @@ class SystemVarController extends Controller
     /**
      * System Var Service
      *
-     * @var \App\Services\SystemVarService
+     * @var \App\Services\v1\SystemVarService
      */
     protected $sysvar;
 
     /**
      * 回應
      *
-     * @var \App\Services\ResponseService
+     * @var \App\Services\v1\ResponseService
      */
     protected $response;
 
     /**
      * 建構函式
      *
-     * @param \App\Services\SystemVarService $sysvar
-     * @param \App\Services\ResponseService $response
+     * @param \App\Services\v1\SystemVarService $sysvar
+     * @param \App\Services\v1\ResponseService $response
      * @return void
      */
     public function __construct(
